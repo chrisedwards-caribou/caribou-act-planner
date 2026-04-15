@@ -1,0 +1,5 @@
+[functions]
+  timeout = 26
+
+[functions."api"]
+  timeout = 26
