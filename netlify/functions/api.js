@@ -79,7 +79,7 @@ function getProp(page, name) {
 async function claudeRequest(messages, system, apiKey) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-opus-4-5',
       max_tokens: 600,
       system,
       messages
