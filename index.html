@@ -1108,18 +1108,45 @@ const PERSON_STYLES = {
   "Carlotta M.":  {col:"#6DC695",tc:"#1E1125",initials:"CM"},
 };
 
-function applyPersonStyles(personArr) {
+function applyPersonStyles(personArr, skillsByPerson, themesByPerson, config) {
+  // Build rate lookups from config if available
+  const buyRates = {};
+  const sellRates = {};
+  const targets = {};
+  if (config) {
+    [1,2,3,4,5].forEach(l => {
+      buyRates[l] = config[`Buy_L${l}`] || BUY[l];
+      sellRates[l] = config[`Sell_L${l}`] || SELL[l];
+      targets[l] = config[`Target_L${l}`] || LT[l];
+    });
+  }
   return personArr.map((p, i) => {
     const style = PERSON_STYLES[p.name] || {col:"#604D64",tc:"#FFFFFF",initials:p.name.slice(0,2).toUpperCase()};
+    // Build skills object keyed by SS id
+    const skillScores = {};
+    const personSkills = (skillsByPerson || {})[p.name] || {};
+    SS.forEach(s => {
+      skillScores[s.id] = personSkills[s.l] || 0;
+    });
+    // Build themes object
+    const themeScores = {};
+    const personThemes = (themesByPerson || {})[p.name] || {};
+    Object.entries(personThemes).forEach(([theme, score]) => {
+      themeScores[theme] = score;
+    });
+    const level = p.level;
     return Object.assign({
       id: i + 1,
       col: style.col,
       tc: style.tc,
       initials: style.initials,
       customTitle: p.name === "Anan A." ? "Head of Strategic Comms" : null,
-      fteFrom5: (p.name === "Megan W." && p.fteFromMonth) ? p.fteNew : null,
-      skills: {},
-      themes: {}
+      fteFrom5: (p.fteFromMonth && p.fteNew) ? p.fteNew : null,
+      skills: skillScores,
+      themes: themeScores,
+      _buyRate: buyRates[level] || BUY[level],
+      _sellRate: sellRates[level] || SELL[level],
+      _target: targets[level] || LT[level],
     }, p);
   });
 }
@@ -1185,7 +1212,7 @@ async function loadNotionData() {
     _notionProjectsById = data.projectsById || {};
     
     /* Apply styles and IDs to people */
-    const newPeople = applyPersonStyles(rawPeople);
+    const newPeople = applyPersonStyles(rawPeople, data.skillsByPerson || {}, data.themesByPerson || {}, data.config || {});
     
     /* Map projects — keep same structure as hardcoded */
     const newProjects = rawProjects.map(p => ({
@@ -1204,8 +1231,10 @@ async function loadNotionData() {
     }
     
     /* Rebuild allocs and loe */
-    const newAllocs = buildAllocsFromNotion(rawAllocs, newPeople, rawProjects);
-    const newLoe = buildLoeFromNotion(rawLoe, newPeople, rawProjects);
+    // Allocations already structured as {monthKey: [{p,pr,d,st}]} from server
+    const newAllocs = data.allocations || {};
+    // LOE already structured as {projectId: {personName: {monthKey: days}}} from server
+    const newLoe = data.loe || {};
     
     /* Replace global data */
     people.length = 0;
@@ -1213,11 +1242,19 @@ async function loadNotionData() {
     projects.length = 0;
     newProjects.forEach(p => projects.push(p));
     Object.keys(allocs).forEach(k => delete allocs[k]);
-    Object.assign(allocs, newAllocs);
+    // Convert string keys to numbers if needed
+    Object.entries(newAllocs).forEach(([k,v]) => { allocs[parseInt(k)] = v; });
     Object.keys(loe).forEach(k => delete loe[k]);
     Object.assign(loe, newLoe);
     
     notionLoaded = true;
+    // Update global config targets from Notion
+    if (data.config) {
+      window.config_targets = {};
+      [1,2,3,4,5].forEach(l => {
+        window.config_targets[l] = data.config[`Target_L${l}`] || LT[l];
+      });
+    }
     return true;
   } catch(e) {
     console.warn('Notion load failed, using fallback data:', e.message);
@@ -1236,7 +1273,10 @@ function eff(p,m,y){const mon=m!=null?m:curMonth;const yr=y!=null?y:curYear;cons
 function avail(p,m,y){return Math.round(eff(p,m,y)*AVAIL);}
 function totalAlloc(pid,m,y){return pa(pid,m,y).reduce((s,a)=>s+a.d,0);}
 function billAlloc(pid,m,y){return pa(pid,m,y).filter(a=>a.st!=="internal").reduce((s,a)=>s+a.d,0);}
-function targetDays(p,m,y){return Math.round(LT[p.level]*avail(p,m,y));}
+function targetDays(p,m,y){return Math.round(levelTarget(p)*avail(p,m,y));}
+function buyRate(p){return (p&&p._buyRate)||BUY[p.level]||396;}
+function sellRate(p){return (p&&p._sellRate)||SELL[p.level]||730;}
+function levelTarget(p){return (p&&p._target)||LT[p.level]||0.90;}
 function pct(a,b){return b>0?Math.round(a/b*100):0;}
 function fmt(n){return"$"+Math.round(n).toLocaleString();}
 function titleOf(p){return p.customTitle||TITLES[p.level]||"Staff";}
@@ -1295,7 +1335,7 @@ function windowMonths(){
 function windowMetrics(months,pillarFilter){
   let tAv=0,tBi=0,tBuy=0,tSell=0,tOvh=0;
   const _wmp=pillarFilter?people.filter(p=>p.pillar===pillarFilter||p.pillar==="F&P+IL"):people;
-  for(const{m,y}of months){for(const p of _wmp){if(contractExpiredByMonth(p,m,y))continue;const av=avail(p,m,y),bill=billAlloc(p.id,m,y);tAv+=av;tBi+=bill;tBuy+=bill*BUY[p.level];tSell+=bill*SELL[p.level];tOvh+=(av-bill)*BUY[p.level];}}
+  for(const{m,y}of months){for(const p of _wmp){if(contractExpiredByMonth(p,m,y))continue;const av=avail(p,m,y),bill=billAlloc(p.id,m,y);tAv+=av;tBi+=bill;tBuy+=bill*buyRate(p);tSell+=bill*sellRate(p);tOvh+=(av-bill)*buyRate(p);}}
   return{tAv,tBi,tBuy,tSell,tMg:tSell-tBuy,tOvh,tNet:tSell-tBuy-tOvh};
 }
 function getLOE(projId,personName,m,y){
@@ -1455,8 +1495,8 @@ function renderOverview(){
   const donut=`<svg viewBox="0 0 160 160" style="width:150px;height:150px;flex-shrink:0;">${paths}<text x="80" y="75" text-anchor="middle" font-family="'Crimson Text',serif" font-size="18" font-weight="600" fill="#1E1125">${bPct}%</text><text x="80" y="88" text-anchor="middle" font-family="'Public Sans',sans-serif" font-size="9" fill="#604D64">billable</text></svg>`;
   const donutLeg=donutData.map(d=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:6px;"><span style="width:10px;height:10px;border-radius:2px;background:${d.col};flex-shrink:0;display:inline-block;border:1px solid rgba(0,0,0,0.08);"></span><span style="flex:1;color:var(--text-2);">${d.label}</span><span style="font-weight:600;color:var(--plum);">${d.val}d</span><span style="color:var(--text-3);font-size:10px;">${pct(d.val,totAv)}%</span></div>`).join("");
   const donutStats=`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:6px;"><div style="font-size:11px;color:var(--text-2);">Revenue<div style="font-family:var(--fh);font-size:18px;font-weight:600;color:var(--clover);">${fmt(tSell)}</div></div><div style="font-size:11px;color:var(--text-2);">Net margin<div style="font-family:var(--fh);font-size:18px;font-weight:600;${tNet>=0?"color:var(--clover)":"color:var(--red)"};">${fmt(tNet)}</div></div></div>`;
-  const levelHTML=[5,4,3,2].map(lv=>{const lvP=people.filter(p=>p.level===lv);if(!lvP.length)return"";let lvAv=0,lvBi=0;for(const{m,y}of wm)for(const p of lvP){if(!contractExpiredByMonth(p,m,y)){lvAv+=avail(p,m,y);lvBi+=billAlloc(p.id,m,y);}}const uPct=pct(lvBi,lvAv);const tPct=Math.round(LT[lv]*100);const col=uPct>=tPct?"var(--clover)":uPct>=tPct*0.85?"var(--naranja)":"var(--red)";return`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);"><div style="min-width:105px;font-size:11px;font-weight:500;color:var(--plum);">L${lv} ${TITLES[lv]}<span style="font-size:10px;color:var(--text-3);font-weight:400;"> &middot; ${lvP.length}</span></div><div style="flex:1;position:relative;height:12px;background:var(--pebble);border-radius:3px;"><div style="width:${uPct}%;height:100%;border-radius:3px;background:${col};"></div><div style="position:absolute;top:-3px;left:${tPct}%;height:18px;width:2px;background:var(--plum);border-radius:1px;"></div></div><div style="min-width:110px;text-align:right;font-size:11px;"><span style="font-weight:600;color:${col};">${uPct}%</span> vs ${tPct}% &middot; ${lvBi}/${lvAv}d</div></div>`;}).join("");
-  const topProjs=projects.filter(p=>p.id!=="INT").map(proj=>{let sell=0,days=0;for(const{m,y}of wm){const pA=mdata(m,y).filter(a=>a.pr===proj.id);days+=pA.reduce((s,a)=>s+a.d,0);if(proj.status!=="pipeline")sell+=pA.reduce((s,a)=>{const per=people.find(x=>x.id===a.p);return s+(per?a.d*SELL[per.level]:0);},0);}return{proj,days,sell};}).filter(r=>r.days>0).sort((a,b)=>b.sell-a.sell);
+  const levelHTML=[5,4,3,2].map(lv=>{const lvP=people.filter(p=>p.level===lv);if(!lvP.length)return"";let lvAv=0,lvBi=0;for(const{m,y}of wm)for(const p of lvP){if(!contractExpiredByMonth(p,m,y)){lvAv+=avail(p,m,y);lvBi+=billAlloc(p.id,m,y);}}const uPct=pct(lvBi,lvAv);const tPct=Math.round((config_targets[lv]||LT[lv])*100);const col=uPct>=tPct?"var(--clover)":uPct>=tPct*0.85?"var(--naranja)":"var(--red)";return`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);"><div style="min-width:105px;font-size:11px;font-weight:500;color:var(--plum);">L${lv} ${TITLES[lv]}<span style="font-size:10px;color:var(--text-3);font-weight:400;"> &middot; ${lvP.length}</span></div><div style="flex:1;position:relative;height:12px;background:var(--pebble);border-radius:3px;"><div style="width:${uPct}%;height:100%;border-radius:3px;background:${col};"></div><div style="position:absolute;top:-3px;left:${tPct}%;height:18px;width:2px;background:var(--plum);border-radius:1px;"></div></div><div style="min-width:110px;text-align:right;font-size:11px;"><span style="font-weight:600;color:${col};">${uPct}%</span> vs ${tPct}% &middot; ${lvBi}/${lvAv}d</div></div>`;}).join("");
+  const topProjs=projects.filter(p=>p.id!=="INT").map(proj=>{let sell=0,days=0;for(const{m,y}of wm){const pA=mdata(m,y).filter(a=>a.pr===proj.id);days+=pA.reduce((s,a)=>s+a.d,0);if(proj.status!=="pipeline")sell+=pA.reduce((s,a)=>{const per=people.find(x=>x.id===a.p);return s+(per?a.d*sellRate(per):0);},0);}return{proj,days,sell};}).filter(r=>r.days>0).sort((a,b)=>b.sell-a.sell);
   const maxSell=Math.max(...topProjs.map(r=>r.sell),1);
   const projRevHTML=topProjs.map(r=>`<div style="display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--border);"><div style="min-width:120px;font-size:11px;color:var(--plum);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.proj.name}</div><div style="flex:1;height:11px;background:var(--pebble);border-radius:3px;overflow:hidden;"><div style="width:${r.proj.status==="pipeline"?0:pct(r.sell,maxSell)}%;height:100%;background:${stCol(r.proj.status)};border-radius:3px;"></div></div><div style="min-width:70px;text-align:right;font-size:11px;font-weight:600;${r.sell>0?"color:var(--clover)":"color:var(--text-3)"};">${r.sell>0?fmt(r.sell):"pipeline"}</div></div>`).join("");
   const fpM=windowMetrics(wm,"F&P"),ilM=windowMetrics(wm,"IL");
@@ -1512,7 +1552,7 @@ function renderPeople(){
     const av=avail(person),eF=eff(person);
     const als=pa(person.id);const total=als.reduce((s,a)=>s+a.d,0);
     const bill=billAlloc(person.id);const free=Math.max(0,av-total);
-    const tgt=targetDays(person);const tPct=Math.round(LT[person.level]*100);
+    const tgt=targetDays(person);const tPct=Math.round(levelTarget(person)*100);
     const isExp=expanded.has(person.id);const panel=expandedPanels[person.id]||"alloc";
     const riskFlag=isContractExpiringSoon(person);
     const bW=Math.round(eF*100);
@@ -1533,10 +1573,10 @@ function renderPeople(){
       return`<tr><td style="display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:2px;background:${stCol(a.st)};flex-shrink:0;display:inline-block;"></span>${proj?proj.name:a.pr}</td><td>${sBadge(a.st)}</td><td style="text-align:right;font-weight:600;">${a.d}d</td><td style="font-size:10px;${gapCol}">${gapText}</td></tr>`;
     }).join("");
     const allocPanel=`<table class="dt"><thead><tr><th>Project</th><th>Status</th><th style="text-align:right">Days</th><th>vs LOE</th></tr></thead><tbody>${allocRows}${free>0?`<tr><td style="display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:2px;background:var(--free-bar);flex-shrink:0;display:inline-block;"></span>Free</td><td></td><td style="text-align:right;font-weight:600;color:var(--clover);">${free}d</td><td></td></tr>`:""}</tbody></table>`;
-    const cDays=av-bill;const mg=bill*SELL[person.level]-bill*BUY[person.level];const overCost=cDays*BUY[person.level];
+    const cDays=av-bill;const mg=bill*sellRate(person)-bill*buyRate(person);const overCost=cDays*buyRate(person);
     const riskCallout=riskFlag?`<div class="callout co-risk">&#9888; ${CT_LABELS[person.contractType]}${person.contractEnd?" — ends "+person.contractEnd:""}. ${person.contractType==="associate"?"Retention as Cariboux planned.":"Work needed beyond this date."}</div>`:"";
     const tgtCallout=bill>=tgt?`<div class="callout co-g">Meeting L${person.level} target (${tPct}% = ${tgt}d).</div>`:`<div class="callout co-a">${tgt-bill}d below L${person.level} target (${tPct}% = ${tgt}d).</div>`;
-    const contractPanel=`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;"><span style="font-size:11px;color:var(--text-2);">Country: <strong>${person.country}</strong></span><span style="color:var(--text-3);">|</span>${contractBadge(person)}</div><div class="fte-grid"><div class="ftem"><div class="ftem-l">Billable</div><div class="ftem-v cg">${bill}d</div></div><div class="ftem"><div class="ftem-l">Target (${tPct}%)</div><div class="ftem-v">${tgt}/${av}d</div></div><div class="ftem"><div class="ftem-l">Overhead</div><div class="ftem-v ca">${cDays}d</div></div><div class="ftem"><div class="ftem-l">Buy/Sell</div><div class="ftem-v">${fmt(BUY[person.level])}/${fmt(SELL[person.level])}</div></div></div><div style="font-size:11px;color:var(--text-2);margin-bottom:7px;">Margin: <strong style="color:${mg>=0?"var(--clover)":"var(--red)"}">${fmt(Math.abs(mg))}</strong> &middot; Overhead cost: <strong style="color:#a05010;">${fmt(overCost)}</strong></div>${tgtCallout}${riskCallout}`;
+    const contractPanel=`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;"><span style="font-size:11px;color:var(--text-2);">Country: <strong>${person.country}</strong></span><span style="color:var(--text-3);">|</span>${contractBadge(person)}</div><div class="fte-grid"><div class="ftem"><div class="ftem-l">Billable</div><div class="ftem-v cg">${bill}d</div></div><div class="ftem"><div class="ftem-l">Target (${tPct}%)</div><div class="ftem-v">${tgt}/${av}d</div></div><div class="ftem"><div class="ftem-l">Overhead</div><div class="ftem-v ca">${cDays}d</div></div><div class="ftem"><div class="ftem-l">Buy/Sell</div><div class="ftem-v">${fmt(buyRate(person))}/${fmt(sellRate(person))}</div></div></div><div style="font-size:11px;color:var(--text-2);margin-bottom:7px;">Margin: <strong style="color:${mg>=0?"var(--clover)":"var(--red)"}">${fmt(Math.abs(mg))}</strong> &middot; Overhead cost: <strong style="color:#a05010;">${fmt(overCost)}</strong></div>${tgtCallout}${riskCallout}`;
     return`<div class="pgcard ${cardStatus}" onclick="togglePerson(${person.id})">
   <div class="pgcard-head">
     <div class="pgcard-av" style="background:${person.col};color:${person.tc}">${person.initials}</div>
@@ -1580,7 +1620,7 @@ function renderPeopleMulti(wm){
     const cells=wm.map(({m,y})=>{
       if(contractExpiredByMonth(person,m,y))return`<td style="text-align:center;"><span class="mm-inactive">expired</span></td>`;
       const av2=avail(person,m,y),bill2=billAlloc(person.id,m,y),tgt2=targetDays(person,m,y);
-      const hit=bill2>=tgt2;const tPct=Math.round(LT[person.level]*100);const bW=Math.round(eff(person,m,y)*100);const uPct=pct(bill2,av2);
+      const hit=bill2>=tgt2;const tPct=Math.round(levelTarget(person)*100);const bW=Math.round(eff(person,m,y)*100);const uPct=pct(bill2,av2);
       if(useBars){
         const als=pa(person.id,m,y);
         const segs=als.map(a=>`<div style="width:${pct(a.d,av2)*bW/100}%;background:${stCol(a.st)};height:100%;"></div>`).join("");
@@ -1625,16 +1665,16 @@ function renderProjects(){
     if(!pA.length&&(filterPersons.size>0||filterClients.size>0))return"";
     const days=pA.reduce((s,a)=>s+a.d,0);
     const isPl=proj.status==="pipeline";
-    const actBuy=pA.reduce((s,a)=>{const per=people.find(x=>x.id===a.p);return s+(per?a.d*BUY[per.level]:0);},0);
-    const actSell=isPl?0:pA.reduce((s,a)=>{const per=people.find(x=>x.id===a.p);return s+(per?a.d*SELL[per.level]:0);},0);
+    const actBuy=pA.reduce((s,a)=>{const per=people.find(x=>x.id===a.p);return s+(per?a.d*buyRate(per):0);},0);
+    const actSell=isPl?0:pA.reduce((s,a)=>{const per=people.find(x=>x.id===a.p);return s+(per?a.d*sellRate(per):0);},0);
     const actMg=actSell-actBuy;const actMgPct=actSell>0?Math.round(actMg/actSell*100):null;
-    const expBuy=pA.reduce((s,a)=>{const per=people.find(x=>x.id===a.p);if(!per)return s;const ld=getLOE(proj.id,per.name);return s+ld*BUY[per.level];},0);
-    const expSell=isPl?0:pA.reduce((s,a)=>{const per=people.find(x=>x.id===a.p);if(!per)return s;const ld=getLOE(proj.id,per.name);return s+ld*SELL[per.level];},0);
+    const expBuy=pA.reduce((s,a)=>{const per=people.find(x=>x.id===a.p);if(!per)return s;const ld=getLOE(proj.id,per.name);return s+ld*buyRate(per);},0);
+    const expSell=isPl?0:pA.reduce((s,a)=>{const per=people.find(x=>x.id===a.p);if(!per)return s;const ld=getLOE(proj.id,per.name);return s+ld*sellRate(per);},0);
     const expMg=expSell-expBuy;const hasLOE=expSell>0||expBuy>0;const mgDelta=actMg-expMg;
     const chips=pA.map(a=>{const per=people.find(x=>x.id===a.p);return per?`<span class="pchip" style="background:${per.col};color:${per.tc};" onclick="event.stopPropagation();openPopover(${per.id},this)" title="${per.name}">${per.initials} — ${a.d}d</span>`:""}).join("");
     const isOpen=expanded.has("proj-"+proj.id);
     const mvId=proj.id;const isMvOpen=mvOpen.has(mvId);
-    const varBreakdown=pA.map(a=>{const per=people.find(x=>x.id===a.p);if(!per)return"";const loeDays=getLOE(proj.id,per.name);const diffDays=a.d-(loeDays||0);const diffSell=diffDays*SELL[per.level];const col=diffSell>0?"color:var(--clover)":diffSell<0?"color:var(--red)":"color:var(--text-3)";return`<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px solid var(--border);"><span>${firstName(per.name)}</span><span style="${col};font-weight:600;">${diffSell>=0?"+":""}${fmt(diffSell)} (${loeDays>0?diffDays+"d vs "+loeDays+"d LOE":a.d+"d, no LOE"})</span></div>`;}).join("");
+    const varBreakdown=pA.map(a=>{const per=people.find(x=>x.id===a.p);if(!per)return"";const loeDays=getLOE(proj.id,per.name);const diffDays=a.d-(loeDays||0);const diffSell=diffDays*sellRate(per);const col=diffSell>0?"color:var(--clover)":diffSell<0?"color:var(--red)":"color:var(--text-3)";return`<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px solid var(--border);"><span>${firstName(per.name)}</span><span style="${col};font-weight:600;">${diffSell>=0?"+":""}${fmt(diffSell)} (${loeDays>0?diffDays+"d vs "+loeDays+"d LOE":a.d+"d, no LOE"})</span></div>`;}).join("");
     const expTotDays=pA.reduce((s,a)=>{const per=people.find(x=>x.id===a.p);return s+(per?getLOE(proj.id,per.name):0);},0);
     const marginSection=hasLOE?`<div class="margin-variance"><div class="mv-row"><span style="color:var(--text-2);">Expected (LOE):</span><span style="font-weight:600;">${expTotDays}d &middot; ${fmt(expMg)}</span></div><div class="mv-row"><span style="color:var(--text-2);">Actual (allocated):</span><span style="font-weight:600;color:${mgDelta>=0?"var(--clover)":"var(--red)"};">${days}d &middot; ${fmt(actMg)} (${mgDelta>=0?"+":""}${fmt(mgDelta)})</span></div><div class="mv-toggle" onclick="event.stopPropagation();toggleMV('${mvId}')">${isMvOpen?"▲ Hide":"▼ Show"} per-person variance</div><div class="mv-breakdown ${isMvOpen?"open":""}">${varBreakdown}<div style="font-size:10px;color:var(--text-3);font-style:italic;margin-top:6px;padding:5px 8px;background:var(--pebble);border-radius:var(--rsm);">&#8505; Tracker only — variances don't carry forward automatically.</div></div></div>`:"";
     const loeRows=!isPl&&pA.length?pA.map(a=>{const per=people.find(x=>x.id===a.p);if(!per)return"";const loeDays=getLOE(proj.id,per.name);const maxD=Math.max(loeDays,a.d,1);const bPct2=pct(loeDays,maxD);const aPct=pct(a.d,maxD);const diff=loeDays>0?Math.abs(a.d-loeDays):0;const actualColor=!loeDays?"var(--red)":a.d===loeDays?"var(--clover)":diff===1?"var(--naranja)":"var(--red)";const gapText2=!loeDays?"no LOE":a.d===loeDays?"on budget":a.d>loeDays?`+${a.d-loeDays}d over`:`-${loeDays-a.d}d under`;const gapCol=!loeDays?"color:var(--red)":a.d===loeDays?"color:var(--text-3)":diff===1?"color:var(--naranja)":"color:var(--red)";return`<div class="proj-loe-row"><div class="proj-loe-name">${firstName(per.name)}</div><div class="proj-loe-track">${loeDays>0?`<div class="proj-loe-budget" style="width:${bPct2}%"></div>`:""}  <div class="proj-loe-actual" style="width:${aPct}%;background:${actualColor};"></div></div><div class="proj-loe-nums" style="${gapCol};">${a.d}d${loeDays>0?`/${loeDays}d`:""}<br><span style="font-size:9px;">${gapText2}</span></div></div>`;}).join(""):"";
@@ -1822,11 +1862,14 @@ async function sendAI(prefill){
   // Build context from live data
   const wm=windowMonths();
   const teamCtx=people.map(p=>{
+    // Add top skills to context
+    const topSkills=Object.entries(p.skills||{}).filter(([k,v])=>v>=3).map(([k])=>{const s=SS.find(x=>x.id===k);return s?s.l:null;}).filter(Boolean).join(', ');
+    const topThemes=Object.entries(p.themes||{}).filter(([k,v])=>v>=3).map(([k])=>k).join(', ');
     const av=avail(p),bill=billAlloc(p.id),tgt=targetDays(p),free=Math.max(0,av-totalAlloc(p.id));
     const als=pa(p.id).map(a=>{const proj=projects.find(x=>x.id===a.pr);return(proj?proj.name:a.pr)+':'+a.d+'d('+a.st+')';}).join(', ');
     const ct=CT_LABELS[p.contractType]||p.contractType;
     const end=p.contractEnd?' CONTRACT ENDS '+p.contractEnd:'';
-    return p.name+' (L'+p.level+', '+p.pillar+', '+p.country+', '+ct+end+'): '+bill+'/'+av+'d billable, '+free+'d free, target '+tgt+'d. '+als+'. Superpower: '+p.superpower+'.';
+    return p.name+' (L'+p.level+', '+p.pillar+', '+p.country+', '+ct+end+'): '+bill+'/'+av+'d billable, '+free+'d free, target '+tgt+'d. '+als+(topSkills?'. Strong skills: '+topSkills:'')+(topThemes?'. Key themes: '+topThemes:'')+'. Superpower: '+p.superpower+'.';
   }).join('\n');
   const projCtx=projects.filter(p=>p.id!=='INT').map(proj=>{
     const pA=ma().filter(a=>a.pr===proj.id);const days=pA.reduce((s,a)=>s+a.d,0);
