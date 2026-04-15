@@ -1,5 +1,5 @@
 const https = require('https');
-
+ 
 function notionRequest(path, token) {
   return new Promise((resolve, reject) => {
     const options = {
@@ -21,7 +21,7 @@ function notionRequest(path, token) {
     req.end();
   });
 }
-
+ 
 async function queryDatabase(dbId, token, startCursor) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
@@ -49,7 +49,7 @@ async function queryDatabase(dbId, token, startCursor) {
     req.end();
   });
 }
-
+ 
 async function getAllPages(dbId, token) {
   let results = [], cursor = undefined, hasMore = true;
   while (hasMore) {
@@ -60,7 +60,7 @@ async function getAllPages(dbId, token) {
   }
   return results;
 }
-
+ 
 function getProp(page, name) {
   const prop = page.properties?.[name];
   if (!prop) return null;
@@ -75,7 +75,7 @@ function getProp(page, name) {
     default: return null;
   }
 }
-
+ 
 async function claudeRequest(messages, system, apiKey) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
@@ -84,6 +84,8 @@ async function claudeRequest(messages, system, apiKey) {
       system,
       messages
     });
+    console.log('Calling Claude API, message count:', messages.length);
+    console.log('API key prefix:', apiKey ? apiKey.slice(0, 12) + '...' : 'MISSING');
     const options = {
       hostname: 'api.anthropic.com',
       path: '/v1/messages',
@@ -97,49 +99,84 @@ async function claudeRequest(messages, system, apiKey) {
     };
     let data = '';
     const req = https.request(options, res => {
+      console.log('Claude API status:', res.statusCode);
       res.on('data', chunk => data += chunk);
-      res.on('end', () => resolve(JSON.parse(data)));
+      res.on('end', () => {
+        try {
+          resolve(JSON.parse(data));
+        } catch(e) {
+          reject(new Error('Failed to parse Claude response: ' + data.slice(0, 200)));
+        }
+      });
     });
     req.on('error', reject);
     req.write(body);
     req.end();
   });
 }
-
+ 
 exports.handler = async (event) => {
   const headers = {
-    'Access-Control-Allow-Origin': 'https://chrisedwards-caribou.github.io',
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Content-Type': 'application/json'
   };
-
+ 
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
-
+ 
   const token = process.env.NOTION_TOKEN;
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
-
+ 
+  console.log('Method:', event.httpMethod);
+  console.log('NOTION_TOKEN present:', !!token);
+  console.log('ANTHROPIC_API_KEY present:', !!anthropicKey);
+ 
   try {
     // AI chat endpoint
     if (event.httpMethod === 'POST') {
-      const { messages, context } = JSON.parse(event.body);
+      console.log('Received POST request');
+      console.log('Body length:', event.body ? event.body.length : 0);
+      
+      let parsed;
+      try {
+        parsed = JSON.parse(event.body);
+      } catch(e) {
+        console.log('JSON parse error:', e.message);
+        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+      }
+ 
+      const { messages, context } = parsed;
+      console.log('Messages count:', messages ? messages.length : 0);
+      console.log('Context length:', context ? context.length : 0);
+ 
+      if (!messages || !messages.length) {
+        return { statusCode: 400, headers, body: JSON.stringify({ reply: 'No messages provided' }) };
+      }
+ 
+      if (!anthropicKey) {
+        console.log('ERROR: ANTHROPIC_API_KEY not set');
+        return { statusCode: 500, headers, body: JSON.stringify({ reply: 'API key not configured on server' }) };
+      }
+ 
       const system = `You are a resource planning assistant for Caribou Digital's ACT pillar. You have access to the following live team data:\n\n${context}\n\nBe concise and direct. Use specific names and numbers. Flag risks clearly.`;
+      
       const result = await claudeRequest(messages, system, anthropicKey);
-      return {
-        statusCode: 200, headers,
-        body: JSON.stringify({ reply: result.content?.[0]?.text || 'No response' })
-      };
+      console.log('Claude result type:', result.type);
+      console.log('Claude error:', result.error);
+      
+      const reply = result.content?.[0]?.text || result.error?.message || 'No response from Claude';
+      return { statusCode: 200, headers, body: JSON.stringify({ reply }) };
     }
-
-    // Data endpoint
+ 
+    // Data endpoint (GET)
     const [peopleRows, projectRows, allocRows, loeRows] = await Promise.all([
       getAllPages(process.env.NOTION_PEOPLE_DB, token),
       getAllPages(process.env.NOTION_PROJECTS_DB, token),
       getAllPages(process.env.NOTION_ALLOCS_DB, token),
       getAllPages(process.env.NOTION_LOE_DB, token)
     ]);
-
-    // Build lookup maps by Notion page ID
+ 
     const peopleById = {};
     const people = peopleRows
       .filter(p => getProp(p, 'Active'))
@@ -160,7 +197,7 @@ exports.handler = async (event) => {
         peopleById[p.id] = obj;
         return obj;
       });
-
+ 
     const projectsById = {};
     const projects = projectRows
       .filter(p => getProp(p, 'Active'))
@@ -177,7 +214,7 @@ exports.handler = async (event) => {
         projectsById[p.id] = obj;
         return obj;
       });
-
+ 
     const allocations = allocRows.map(r => ({
       personId: getProp(r, 'Person')?.[0],
       projectId: getProp(r, 'Project')?.[0],
@@ -187,7 +224,7 @@ exports.handler = async (event) => {
       status: getProp(r, 'Status'),
       isActual: getProp(r, 'Is_actual')
     })).filter(a => a.personId && a.projectId && a.days > 0);
-
+ 
     const loe = loeRows.map(r => ({
       personId: getProp(r, 'Person')?.[0],
       projectId: getProp(r, 'Project')?.[0],
@@ -195,16 +232,18 @@ exports.handler = async (event) => {
       month: getProp(r, 'Month'),
       days: getProp(r, 'Days')
     })).filter(a => a.personId && a.projectId && a.days > 0);
-
+ 
     return {
       statusCode: 200, headers,
       body: JSON.stringify({ people, projects, allocations, loe, peopleById, projectsById })
     };
-
+ 
   } catch (err) {
+    console.log('Handler error:', err.message);
     return {
       statusCode: 500, headers,
-      body: JSON.stringify({ error: err.message })
+      body: JSON.stringify({ error: err.message, reply: 'Server error: ' + err.message })
     };
   }
 };
+ 
