@@ -54,6 +54,17 @@ function getProp(page, name) {
   }
 }
 
+function extractPersonFromName(title) {
+  // Format: "2026-04 Chris E. — Strive 2.0"
+  const match = title.match(/^\d{4}-\d{2}\s+(.+?)\s*[—–-]\s*.+$/);
+  return match ? match[1].trim() : null;
+}
+
+function extractProjectFromName(title) {
+  const match = title.match(/^\d{4}-\d{2}\s+.+?\s*[—–-]\s*(.+)$/);
+  return match ? match[1].trim() : null;
+}
+
 async function claudeRequest(messages, system, apiKey) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
@@ -78,7 +89,7 @@ async function claudeRequest(messages, system, apiKey) {
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
         try { resolve(JSON.parse(data)); }
-        catch(e) { reject(new Error('Parse error: ' + data.slice(0,200))); }
+        catch(e) { reject(new Error('Parse error: ' + data.slice(0, 200))); }
       });
     });
     req.on('error', reject);
@@ -122,26 +133,34 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify({ reply }) };
     }
 
-    // Data endpoint (GET) — fetch all databases in parallel
-    const dbPromises = [
+    // Data endpoint — fetch all six databases in parallel
+    const [peopleRows, projectRows, allocRows, loeRows, skillsRows, configRows] = await Promise.all([
       getAllPages(process.env.NOTION_PEOPLE_DB, token),
       getAllPages(process.env.NOTION_PROJECTS_DB, token),
       getAllPages(process.env.NOTION_ALLOCS_DB, token),
       getAllPages(process.env.NOTION_LOE_DB, token),
       getAllPages(process.env.NOTION_SKILLS_DB, token),
-    ];
+      getAllPages(process.env.NOTION_CONFIG_DB, token),
+    ]);
 
-    const [peopleRows, projectRows, allocRows, loeRows, skillsRows] = await Promise.all(dbPromises);
+    // Config
+    const config = {};
+    configRows.forEach(r => {
+      const name = getProp(r, 'Name');
+      const value = getProp(r, 'Value');
+      if (name && value !== null) config[name] = value;
+    });
 
     // People
     const peopleById = {};
     const people = peopleRows
       .filter(p => getProp(p, 'Active'))
       .map(p => {
+        const level = getProp(p, 'Level');
         const obj = {
           _id: p.id,
           name: getProp(p, 'Name'),
-          level: getProp(p, 'Level'),
+          level,
           fte: getProp(p, 'FTE'),
           fteFromMonth: getProp(p, 'FTE_from_month'),
           fteNew: getProp(p, 'FTE_new'),
@@ -149,11 +168,18 @@ exports.handler = async (event) => {
           country: getProp(p, 'Country'),
           contractType: getProp(p, 'Contract_type'),
           contractEnd: getProp(p, 'Contract_end'),
-          superpower: getProp(p, 'Superpower')
+          superpower: getProp(p, 'Superpower'),
+          buyRate: config[`Buy_L${level}`] || null,
+          sellRate: config[`Sell_L${level}`] || null,
+          target: config[`Target_L${level}`] || null,
         };
         peopleById[p.id] = obj;
         return obj;
       });
+
+    // People lookup by name for plain-text matching
+    const peopleByName = {};
+    people.forEach(p => { peopleByName[p.name] = p; });
 
     // Projects
     const projectsById = {};
@@ -173,28 +199,81 @@ exports.handler = async (event) => {
         return obj;
       });
 
-    // Allocations
-    const allocations = allocRows.map(r => ({
-      personId: getProp(r, 'Person')?.[0],
-      projectId: getProp(r, 'Project')?.[0],
-      year: getProp(r, 'Year'),
-      month: getProp(r, 'Month'),
-      days: getProp(r, 'Days'),
-      status: getProp(r, 'Status'),
-      isActual: getProp(r, 'Is_actual')
-    })).filter(a => a.personId && a.projectId && a.days > 0);
+    // Projects lookup by name
+    const projectsByName = {};
+    projects.forEach(p => { projectsByName[p.name] = p; });
 
-    // LOE
-    const loe = loeRows.map(r => ({
-      personId: getProp(r, 'Person')?.[0],
-      projectId: getProp(r, 'Project')?.[0],
-      year: getProp(r, 'Year'),
-      month: getProp(r, 'Month'),
-      days: getProp(r, 'Days')
-    })).filter(a => a.personId && a.projectId && a.days > 0);
+    // Helper: resolve person from a row (tries relation first, then text, then name column)
+    function resolvePersonName(r) {
+      // Try relation
+      const relIds = getProp(r, 'Person') || [];
+      if (relIds.length > 0 && peopleById[relIds[0]]) return peopleById[relIds[0]].name;
+      // Try Person_name text column
+      const pName = getProp(r, 'Person_name');
+      if (pName && pName.trim()) return pName.trim();
+      // Try extracting from Name title
+      const title = getProp(r, 'Name') || '';
+      return extractPersonFromName(title);
+    }
 
-    // Skills — build as {personName: {skillName: score, ...}, ...}
-    // Uses person name matching (via relation lookup) or falls back to name in title
+    function resolveProjectName(r) {
+      const relIds = getProp(r, 'Project') || [];
+      if (relIds.length > 0 && projectsById[relIds[0]]) return projectsById[relIds[0]].name;
+      const pName = getProp(r, 'Project_name');
+      if (pName && pName.trim()) return pName.trim();
+      const title = getProp(r, 'Name') || '';
+      return extractProjectFromName(title);
+    }
+
+    // Allocations — build as {monthKey: [{p, pr, d, st}]}
+    // monthKey = (year-2026)*12 + (month-1)
+    const allocsByMonth = {};
+    const SO = ["live","contracted","pipeline","internal"];
+
+    allocRows.forEach(r => {
+      const personName = resolvePersonName(r);
+      const projectName = resolveProjectName(r);
+      const year = getProp(r, 'Year');
+      const month = getProp(r, 'Month');
+      const days = getProp(r, 'Days');
+      const status = getProp(r, 'Status') || 'live';
+      if (!personName || !projectName || !year || !month || !days) return;
+
+      const person = peopleByName[personName];
+      const project = projectsByName[projectName];
+      if (!person || !project) return;
+
+      const monthKey = (year - 2026) * 12 + (month - 1);
+      if (!allocsByMonth[monthKey]) allocsByMonth[monthKey] = [];
+      allocsByMonth[monthKey].push({ p: person.id, pr: project.projectId, d: days, st: status });
+    });
+
+    // Sort each month by status order
+    Object.keys(allocsByMonth).forEach(k => {
+      allocsByMonth[k].sort((a, b) => SO.indexOf(a.st) - SO.indexOf(b.st));
+    });
+
+    // LOE — build as {projectName: {personName: {monthKey: days}}}
+    const loeByProject = {};
+    loeRows.forEach(r => {
+      const personName = resolvePersonName(r);
+      const projectName = resolveProjectName(r);
+      const year = getProp(r, 'Year');
+      const month = getProp(r, 'Month');
+      const days = getProp(r, 'Days');
+      if (!personName || !projectName || !year || !month || !days) return;
+
+      const project = projectsByName[projectName];
+      if (!project) return;
+
+      const projId = project.projectId;
+      const monthKey = (year - 2026) * 12 + (month - 1);
+      if (!loeByProject[projId]) loeByProject[projId] = {};
+      if (!loeByProject[projId][personName]) loeByProject[projId][personName] = {};
+      loeByProject[projId][personName][monthKey] = days;
+    });
+
+    // Skills and themes
     const skillsByPerson = {};
     const themesByPerson = {};
 
@@ -202,19 +281,16 @@ exports.handler = async (event) => {
       const personRelIds = getProp(r, 'Person') || [];
       const skill = getProp(r, 'Skill');
       const score = getProp(r, 'Score');
-      const type = getProp(r, 'Type'); // 'Sub-service' or 'Theme'
+      const type = getProp(r, 'Type');
       if (!skill || score === null) return;
 
-      // Resolve person name via relation or title
       let personName = null;
-      if (personRelIds.length > 0) {
-        const personObj = peopleById[personRelIds[0]];
-        if (personObj) personName = personObj.name;
+      if (personRelIds.length > 0 && peopleById[personRelIds[0]]) {
+        personName = peopleById[personRelIds[0]].name;
       }
-      // Fallback: extract name from title format "Chris E. — Skill name"
       if (!personName) {
         const title = getProp(r, 'Name') || '';
-        const match = title.match(/^([^—]+)\s*—/);
+        const match = title.match(/^([^—–-]+)\s*[—–-]/);
         if (match) personName = match[1].trim();
       }
       if (!personName) return;
@@ -231,9 +307,15 @@ exports.handler = async (event) => {
     return {
       statusCode: 200, headers,
       body: JSON.stringify({
-        people, projects, allocations, loe,
-        peopleById, projectsById,
-        skillsByPerson, themesByPerson
+        people,
+        projects,
+        allocations: allocsByMonth,
+        loe: loeByProject,
+        peopleById,
+        projectsById,
+        skillsByPerson,
+        themesByPerson,
+        config
       })
     };
 
