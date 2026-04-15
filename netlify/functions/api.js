@@ -80,7 +80,7 @@ async function claudeRequest(messages, system, apiKey) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
       model: 'claude-opus-4-5',
-      max_tokens: 600,
+      max_tokens: 300,
       system,
       messages
     });
