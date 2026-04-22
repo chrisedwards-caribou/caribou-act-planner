@@ -11,12 +11,11 @@
 :root{
   --bg:#F0EEF0;--surface:#FFFFFF;--off-white:#F7F5F7;--chalk:#EAE7EA;--pebble:#E0DCE0;
   --plum:#4A334E;--plum-light:#6F5175;--tangerine:#E8642A;--clover:#287F66;
-  --naranja:#FFA31D;--red:#C0392B;--lavender:#8777B2;--blush:#FFD1CD;--spring:#B6D3B6;
-  --live:#287F66;--contracted:#8777B2;--pipeline:#FFA31D;--internal:#FFD1CD;--free-bar:#B6D3B6;
+  --naranja:#FFA31D;--red:#C0392B;--lavender:#8777B2;--blush:#F4A7A0;--spring:#B6D3B6;
+  --live:#287F66;--contracted:#8777B2;--pipeline:#FFA31D;--leave:#F4A7A0;--free-bar:#B6D3B6;
   --text:#1E1125;--text-2:#4A334E;--text-3:#8A7A8E;
   --border:#D8D0D8;--border-strong:#B0A0B4;
-  --r:10px;--rsm:6px;
-  --fb:'Public Sans',sans-serif;--fh:'Crimson Text',serif;
+  --r:10px;--rsm:6px;--fb:'Public Sans',sans-serif;--fh:'Crimson Text',serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:var(--fb);background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;}
@@ -35,40 +34,45 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);font-size:13px
 .hdr-month button{background:transparent;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:14px;padding:2px 6px;}
 .hdr-month button:hover{color:white;}
 .hdr-month span{color:white;font-size:12px;font-weight:600;min-width:64px;text-align:center;}
-.main{padding:14px 18px;max-width:1400px;margin:0 auto;}
-.view-hint{font-size:11px;color:var(--text-3);margin-bottom:8px;text-align:right;}
-.legend{display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap;padding:6px 0;}
-.legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-3);}
-.legend-dot{width:10px;height:10px;border-radius:2px;}
-.legend-line{width:18px;height:2px;background:var(--plum);}
-.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
-.scard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;}
-.scard-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:6px;}
-.scard-val{font-family:var(--fh);font-size:32px;font-weight:600;line-height:1;margin-bottom:4px;}
-.scard-sub{font-size:11px;color:var(--text-3);}
-.scard-names{font-size:10px;color:var(--text-3);margin-top:4px;font-style:italic;}
-.cg{color:var(--clover);} .cr{color:var(--red);} .ca{color:var(--naranja);} .cp{color:var(--plum);}
-.pillar-strip{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-.pm-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 15px;}
-.pm-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:6px;}
-.pm-val{font-family:var(--fh);font-size:22px;font-weight:600;}
-.pm-detail{font-size:11px;color:var(--text-3);margin-top:2px;}
-.ov-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;align-items:stretch;}
-.ovsec{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;}
-.ovsec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:10px;}
-.alerts-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;}
-.alerts-panel-header{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);}
-.alerts-panel-header:hover{background:var(--off-white);}
+/* ALERTS BANNER */
+.alerts-banner{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:46px;z-index:99;}
+.alerts-banner-header{display:flex;align-items:center;gap:8px;padding:7px 20px;cursor:pointer;}
+.alerts-banner-header:hover{background:var(--off-white);}
 .alert-badge{background:var(--tangerine);color:white;border-radius:99px;font-size:10px;font-weight:700;padding:1px 7px;}
-.alerts-body{padding:10px 14px;display:none;}
-.alerts-body.open{display:block;}
-.impl-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);align-items:flex-start;}
+.alerts-banner-body{padding:8px 20px 10px;border-top:1px solid var(--border);display:none;max-height:240px;overflow-y:auto;}
+.alerts-banner-body.open{display:block;}
+.impl-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);align-items:flex-start;}
 .impl-item:last-child{border-bottom:none;}
-.impl-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.impl-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
 .impl-red{background:#FDE8E6;} .impl-amber{background:#FEF3E2;} .impl-blue{background:#E8F4FD;}
 .impl-body{flex:1;}
 .impl-title{font-size:12px;font-weight:600;color:var(--plum);}
-.impl-detail{font-size:11px;color:var(--text-2);margin-top:2px;}
+.impl-detail{font-size:11px;color:var(--text-2);margin-top:1px;}
+/* MAIN */
+.main{padding:14px 18px;max-width:1400px;margin:0 auto;}
+.view-hint{font-size:11px;color:var(--text-3);margin-bottom:8px;text-align:right;}
+/* LEGEND — people/projects only */
+.tab-legend{display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap;padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-3);}
+.legend-dot{width:10px;height:10px;border-radius:2px;}
+/* SUMMARY CARDS */
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;}
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;}
+.scard.clickable{cursor:pointer;}
+.scard.clickable:hover{box-shadow:0 2px 10px rgba(30,17,37,0.1);}
+.scard-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:6px;}
+.scard-val{font-family:var(--fh);font-size:32px;font-weight:600;line-height:1;margin-bottom:4px;}
+.scard-sub{font-size:11px;color:var(--text-3);}
+.scard-names{font-size:10px;color:var(--text-3);margin-top:3px;font-style:italic;line-height:1.4;}
+.cg{color:var(--clover);} .cr{color:var(--red);} .ca{color:var(--naranja);} .cp{color:var(--plum);}
+/* OVERVIEW 3-COL */
+.ov-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;align-items:stretch;}
+.ovsec{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;}
+.ovsec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:10px;}
+/* PIPELINE POPOVER */
+.pipeline-popover{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;z-index:1000;min-width:380px;max-width:520px;box-shadow:0 8px 32px rgba(0,0,0,0.2);max-height:80vh;overflow-y:auto;}
+.popover-overlay{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.15);}
+/* PERSON CARDS */
 .card-grid{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;}
 .pgcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:box-shadow 0.15s;flex:0 0 calc(33.333% - 7px);min-width:260px;}
 .pgcard:hover{box-shadow:0 2px 10px rgba(30,17,37,0.1);}
@@ -79,14 +83,15 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);font-size:13px
 .pgcard-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
 .pgcard-info{flex:1;min-width:0;}
 .pgcard-name{font-family:var(--fh);font-size:14px;font-weight:600;color:var(--plum);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pgcard-role{font-size:10px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pgcard-role{font-size:10px;color:var(--text-3);}
 .pgcard-meta{display:flex;align-items:center;gap:5px;flex-shrink:0;}
-.pgcard-bar{height:6px;margin:0 12px 6px;border-radius:3px;background:var(--pebble);position:relative;overflow:hidden;}
+.pgcard-bar{height:7px;margin:0 12px 4px;border-radius:3px;background:var(--pebble);position:relative;overflow:hidden;}
 .pgcard-bar-fill{height:100%;border-radius:3px;display:flex;}
-.pgcard-bar-target{position:absolute;top:-2px;height:10px;width:2px;background:var(--plum);border-radius:1px;}
+.pgcard-bar-target{position:absolute;top:-2px;height:11px;width:2px;background:var(--plum);border-radius:1px;z-index:1;}
 .pgcard-stats{display:flex;justify-content:space-between;padding:0 12px 8px;font-size:10px;color:var(--text-3);}
 .pgcard-expand{border-top:1px solid var(--border);background:var(--off-white);display:none;}
 .pgcard-expand.open{display:block;}
+/* PROJECT CARDS */
 .pjcard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;}
 .pjgcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:box-shadow 0.15s;}
 .pjgcard:hover{box-shadow:0 2px 10px rgba(30,17,37,0.1);}
@@ -100,22 +105,24 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);font-size:13px
 .proj-loe-actual{position:absolute;top:0;left:0;height:100%;border-radius:3px;}
 .proj-loe-overflow{position:absolute;top:-2px;height:12px;width:3px;background:var(--red);border-radius:0 2px 2px 0;}
 .proj-loe-nums{min-width:75px;font-size:10px;color:var(--text-3);text-align:right;}
+/* TABS (person expand) */
 .pd-tabs{display:flex;border-bottom:1px solid var(--border);padding:0 12px;background:var(--surface);}
 .pd-tab{padding:7px 12px;font-size:11px;font-weight:600;color:var(--text-3);background:transparent;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
 .pd-tab.active{color:var(--plum);border-bottom-color:var(--tangerine);}
 .pd-panel{display:none;padding:10px 12px;}
 .pd-panel.active{display:block;}
+/* FILTER BAR */
 .filter-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;margin-bottom:10px;}
 .filter-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-3);flex-shrink:0;}
 .sort-btn{padding:3px 10px;border:1px solid var(--border-strong);border-radius:99px;background:transparent;cursor:pointer;font-size:11px;font-family:var(--fb);color:var(--text-2);margin:1px;transition:all 0.1s;}
 .sort-btn:hover{border-color:var(--tangerine);color:var(--tangerine);}
 .sort-btn.active{background:var(--tangerine);color:white;border-color:var(--tangerine);}
-.colour-key{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;margin-bottom:8px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-.ck-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-3);}
+/* DATA TABLE */
 .dt{width:100%;border-collapse:collapse;font-size:11px;}
 .dt th{text-align:left;padding:4px 6px;color:var(--text-3);font-weight:600;border-bottom:1px solid var(--border);}
-.dt td{padding:4px 6px;border-bottom:1px solid var(--border);}
+.dt td{padding:4px 6px;border-bottom:1px solid var(--border);vertical-align:middle;}
 .dt tr:last-child td{border-bottom:none;}
+/* PILLS */
 .pill{display:inline-flex;align-items:center;padding:1px 6px;border-radius:99px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;}
 .p-pl{background:var(--plum);color:white;}
 .p-teal{background:#E6F4F0;color:#1A5C48;}
@@ -124,11 +131,12 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);font-size:13px
 .p-live{background:#E6F4F0;color:var(--clover);}
 .p-contracted{background:#EEE8F6;color:var(--lavender);}
 .p-pipeline{background:#FEF3E2;color:#9A6200;}
-.p-internal{background:var(--blush);color:#8A3020;}
+/* CALLOUTS */
 .callout{padding:6px 10px;border-radius:var(--rsm);font-size:11px;margin-bottom:6px;}
 .co-g{background:#E6F4F0;color:#1A5C48;border-left:3px solid var(--clover);}
 .co-a{background:#FEF3E2;color:#7A4F00;border-left:3px solid var(--naranja);}
 .co-risk{background:#FDE8E6;color:#8B1A1A;border-left:3px solid var(--red);}
+/* SKILLS */
 .ssg{margin-bottom:10px;}
 .ssg-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-3);margin-bottom:5px;}
 .tchip,.sschip{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;border:1px solid var(--border-strong);background:transparent;cursor:pointer;font-size:11px;font-family:var(--fb);color:var(--text-2);margin:2px;transition:all 0.1s;}
@@ -138,24 +146,34 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);font-size:13px
 .f-atag button{background:transparent;border:none;color:white;cursor:pointer;font-size:12px;padding:0;line-height:1;}
 .avail-bar{height:8px;background:var(--pebble);border-radius:3px;overflow:hidden;margin-top:4px;}
 .avail-fill{height:100%;border-radius:3px;}
+/* PERSON DETAIL */
 .fte-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;}
 .ftem{background:var(--off-white);border-radius:var(--rsm);padding:6px 8px;}
 .ftem-l{font-size:10px;color:var(--text-3);}
 .ftem-v{font-size:14px;font-weight:600;font-family:var(--fh);}
-.margin-variance{background:var(--chalk);border-radius:var(--rsm);padding:8px 10px;margin-top:8px;}
-.mv-row{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;}
-.mv-toggle{font-size:10px;color:var(--tangerine);cursor:pointer;margin-top:6px;font-weight:600;}
-.mv-breakdown{display:none;margin-top:6px;border-top:1px solid var(--border);padding-top:6px;}
-.mv-breakdown.open{display:block;}
 .pchip{display:inline-flex;align-items:center;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:700;cursor:pointer;margin:1px;}
 .tag{display:inline-flex;align-items:center;padding:1px 6px;border-radius:99px;font-size:9px;font-weight:700;}
 .t-lh{background:#FEF3E2;color:#9A6200;}
 .t-lm{background:#E6F4F0;color:#1A5C48;}
 .t-ll{background:var(--pebble);color:var(--text-2);}
 .ct-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;}
-.popover-overlay{position:fixed;inset:0;z-index:999;}
-.person-popover{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;z-index:1000;min-width:280px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
+/* SPARKLINES */
+.sparkline-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;}
+.spark-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;}
+/* PROJECT MULTI-MONTH TABLE */
+.proj-matrix{width:100%;border-collapse:collapse;font-size:11px;}
+.proj-matrix th{text-align:left;padding:5px 8px;color:var(--text-3);font-weight:600;border-bottom:2px solid var(--border);white-space:nowrap;}
+.proj-matrix td{padding:4px 6px;border-bottom:1px solid var(--border);}
+.proj-matrix tr:last-child td{border-bottom:none;}
+.proj-cell{display:flex;flex-direction:column;align-items:center;gap:1px;}
+.proj-cell-bar{height:4px;border-radius:2px;width:100%;min-width:30px;}
+/* LOADING */
 @keyframes loadbar{0%{width:0%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0%;margin-left:100%}}
+/* SKILLS HEATMAP */
+.heatmap-row{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+.heatmap-label{font-size:10px;color:var(--text-2);min-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.heatmap-dots{display:flex;gap:2px;flex-wrap:wrap;}
+.heatmap-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -190,21 +208,16 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);font-size:13px
     <button onclick="changeMonth(1)">&#8594;</button>
   </div>
 </div>
+<div class="alerts-banner">
+  <div class="alerts-banner-header" onclick="toggleAlerts()">
+    <span style="font-family:var(--fh);font-size:14px;font-weight:600;color:var(--plum);">🔔 Alerts</span>
+    <span class="alert-badge" id="alert-count">0</span>
+    <span style="margin-left:auto;font-size:11px;color:var(--text-3);" id="alerts-chevron">▼ expand</span>
+  </div>
+  <div class="alerts-banner-body" id="alerts-body"></div>
+</div>
 <div class="main">
   <div id="view-hint" class="view-hint"></div>
-  <div class="legend">
-    <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-3);">Key:</span>
-    <div class="legend-item"><span class="legend-dot" style="background:var(--live);"></span>Live</div>
-    <div class="legend-item"><span class="legend-dot" style="background:var(--contracted);"></span>Contracted</div>
-    <div class="legend-item"><span class="legend-dot" style="background:var(--pipeline);background-image:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,0.5) 2px,rgba(255,255,255,0.5) 4px);"></span>Pipeline</div>
-    <div class="legend-item"><span class="legend-dot" style="background:var(--internal);"></span>Internal</div>
-    <div class="legend-item"><span class="legend-dot" style="background:var(--free-bar);"></span>Free</div>
-    <div class="legend-item"><div class="legend-line"></div>Billable target</div>
-    <div class="legend-item">🌴 Leave</div>
-    <div class="legend-item"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;border-top:3px solid var(--clover);"></span>On target</div>
-    <div class="legend-item"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;border-top:3px solid var(--naranja);"></span>Capacity available</div>
-    <div class="legend-item"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;border-top:3px solid var(--red);"></span>Over contract</div>
-  </div>
   <div id="view"></div>
 </div>
 
@@ -216,6 +229,7 @@ const TITLES={1:"Analyst",2:"Manager",3:"Senior Manager",4:"Director",5:"Senior 
 const CT_LABELS={uk_permanent:"UK Permanent",cariboux_permanent:"Cariboux Permanent",cariboux_fixedterm:"Cariboux Fixed Term",contractor:"Contractor",associate:"Associate"};
 const CT_COLS={uk_permanent:"#4A334E",cariboux_permanent:"#287F66",cariboux_fixedterm:"#8777B2",contractor:"#FFA31D",associate:"#E8642A"};
 const ACTIVE_PIPELINE=new Set(["In progress","EOI submitted","Bid submitted","Shortlisted","Bid successful"]);
+const STAGE_COLS={"In progress":"#4A334E","EOI submitted":"#8777B2","Bid submitted":"#FFA31D","Shortlisted":"#287F66","Bid successful":"#6DC695"};
 const NETLIFY_FN='https://caribou-act-api.chris-edwards.workers.dev';
 const SS=[
   {id:"fv1",g:"Funding vehicles",l:"Fund (co-)design"},{id:"fv2",g:"Funding vehicles",l:"Grantmaking & due diligence"},
@@ -255,30 +269,25 @@ const PERSON_STYLES = {
   "Eugenia S.":   {col:"#8777B2",tc:"#FFFFFF",initials:"ES"},
   "Carlotta M.":  {col:"#6DC695",tc:"#1E1125",initials:"CM"},
 };
+
 let people=[],projects=[],allocs={},loe={},leaveByPerson={},pipeline=[];
 let curMonth=3,curYear=2026,winSize=1,curView="overview",sortMode="seniority";
 let filterPersons=new Set(),filterProjects=new Set(),filterClients=new Set();
 let filterStatus=null,filterPillar=null;
 let expanded=new Set(),expandedPanels={};
-let alertsOpen=false,dismissedAlerts=new Set(),mvOpen=new Set();
-let sf={themes:new Set(),ss:new Set(),minScore:2};
+let alertsOpen=false,dismissedAlerts=new Set();
+let sf={themes:new Set(),ss:new Set(),minScore:1};
 let aiMessages=[],aiLoading=false;
 
-// ── NOTION LOADING ──
-function applyPersonStyles(personArr,skillsByPerson,themesByPerson){
-  return personArr.map((p,i)=>{
-    const style=PERSON_STYLES[p.name]||{col:"#604D64",tc:"#FFFFFF",initials:p.name.slice(0,2).toUpperCase()};
-    const personSkills=(skillsByPerson||{})[p.name]||{};
-    const skillScores={};
-    SS.forEach(s=>{skillScores[s.id]=personSkills[s.l]||0;});
-    const themeScores={};
-    Object.entries((themesByPerson||{})[p.name]||{}).forEach(([t,sc])=>{themeScores[t]=sc;});
-    return Object.assign({
-      id:i+1,col:style.col,tc:style.tc,initials:style.initials,
-      customTitle:p.name==="Anan A."?"Head of Strategic Comms":null,
-      fteFrom5:(p.fteFromMonth&&p.fteNew)?p.fteNew:null,
-      skills:skillScores,themes:themeScores,
-    },p);
+// ── NOTION ──
+function applyPersonStyles(arr,skillsByPerson,themesByPerson){
+  return arr.map((p,i)=>{
+    const s=PERSON_STYLES[p.name]||{col:"#604D64",tc:"#FFFFFF",initials:p.name.slice(0,2).toUpperCase()};
+    const pSkills=(skillsByPerson||{})[p.name]||{};
+    const skillScores={};SS.forEach(s2=>{skillScores[s2.id]=pSkills[s2.l]||0;});
+    const themeScores={};Object.entries((themesByPerson||{})[p.name]||{}).forEach(([t,sc])=>{themeScores[t]=sc;});
+    return Object.assign({id:i+1,col:s.col,tc:s.tc,initials:s.initials,
+      customTitle:p.name==="Anan A."?"Head of Strategic Comms":null,skills:skillScores,themes:themeScores},p);
   });
 }
 
@@ -289,20 +298,17 @@ async function loadNotionData(){
     const data=await res.json();
     const newPeople=applyPersonStyles(data.people||[],data.skillsByPerson,data.themesByPerson);
     const newProjects=(data.projects||[]).map(p=>({
-      id:p.projectId,name:p.name,client:p.client,
-      status:p.status,lift:p.lift,endDate:p.endDate?p.endDate.slice(0,7):null,
-      skills:[],themes:[]
+      id:p.projectId,name:p.name,client:p.client,status:p.status,lift:p.lift,
+      endDate:p.endDate?p.endDate.slice(0,7):null
     }));
     if(!newProjects.find(p=>p.id==='INT'))
-      newProjects.push({id:'INT',name:'Internal',client:'Caribou',status:'internal',lift:null,endDate:null,skills:[],themes:[]});
+      newProjects.push({id:'INT',name:'Internal',client:'Caribou',status:'internal',lift:null,endDate:null});
     people.length=0;newPeople.forEach(p=>people.push(p));
     projects.length=0;newProjects.forEach(p=>projects.push(p));
     Object.keys(allocs).forEach(k=>delete allocs[k]);
     Object.entries(data.allocations||{}).forEach(([k,v])=>{allocs[parseInt(k)]=v;});
-    Object.keys(loe).forEach(k=>delete loe[k]);
-    Object.assign(loe,data.loe||{});
-    Object.keys(leaveByPerson).forEach(k=>delete leaveByPerson[k]);
-    Object.assign(leaveByPerson,data.leaveByPerson||{});
+    Object.keys(loe).forEach(k=>delete loe[k]);Object.assign(loe,data.loe||{});
+    Object.keys(leaveByPerson).forEach(k=>delete leaveByPerson[k]);Object.assign(leaveByPerson,data.leaveByPerson||{});
     pipeline.length=0;(data.pipeline||[]).forEach(p=>pipeline.push(p));
     if(data.config){[1,2,3,4,5].forEach(l=>{if(data.config[`Target_L${l}`]!==undefined)LT[l]=data.config[`Target_L${l}`];});}
     return true;
@@ -313,16 +319,17 @@ async function loadNotionData(){
 function pct(a,b){return b>0?Math.round(a/b*100):0;}
 function firstName(name){const p=name.split(" ");return p[0]==="Grace"&&p.length>1?p[0]+" "+p[1]:p[0];}
 function countryFlag(c){const f={"UK":"🇬🇧","France":"🇫🇷","Kenya":"🇰🇪","Hungary":"🇭🇺","South Africa":"🇿🇦","Palestine":"🇵🇸","Canada":"🇨🇦","Italy":"🇮🇹","Uganda":"🇺🇬","Australia":"🇦🇺","Spain":"🇪🇸"};return f[c]||c;}
-function stCol(st){return{live:"var(--live)",contracted:"var(--contracted)",pipeline:"var(--pipeline)",internal:"var(--internal)"}[st]||"var(--pebble)";}
-function sBadge(st){const cls={live:"p-live",contracted:"p-contracted",pipeline:"p-pipeline",internal:"p-internal"}[st]||"p-gy";const icon={live:"▶️",contracted:"📋",pipeline:"🔮",internal:"🏠"}[st]||"";return`<span class="pill ${cls}">${icon} ${st}</span>`;}
+function stCol(st){return{live:"var(--live)",contracted:"var(--contracted)",pipeline:"var(--pipeline)"}[st]||"var(--pebble)";}
+function sBadge(st){const cls={live:"p-live",contracted:"p-contracted",pipeline:"p-pipeline"}[st]||"p-gy";const icon={live:"▶️",contracted:"📋",pipeline:"🔮"}[st]||"";return`<span class="pill ${cls}">${icon} ${st}</span>`;}
 function contractBadge(p){const col=CT_COLS[p.contractType]||"#604D64";return`<span class="ct-badge" style="background:${col}20;color:${col};">${CT_LABELS[p.contractType]||p.contractType}</span>`;}
-function capPill(total,av){if(total>av)return`<span class="pill p-risk" style="font-size:8px;">⚠️ Over</span>`;return"";}
 function titleOf(p){return p.customTitle||TITLES[p.level]||"Team Member";}
-function leaveDays(person,m,y){const mk=(y-2026)*12+m;return(leaveByPerson[person.name]||{})[mk]||0;}
+function leaveDays(person,m,y){const mk=(y-2026)*12+(m!==undefined?m:curMonth);return(leaveByPerson[person.name]||{})[mk]||0;}
 function avail(person,m,y){
   const mo=m!==undefined?m:curMonth,yr=y!==undefined?y:curYear;
   let base=AVAIL_DAYS;
-  if(person.fte<1){const fteMo=person.fteFromMonth,fteNew=person.fteNew;if(fteMo&&fteNew&&(yr>2026||(yr===2026&&mo>=fteMo))){base=Math.round(AVAIL_DAYS*fteNew);}else{base=Math.round(AVAIL_DAYS*person.fte);}}
+  if(person.fte<1){const fteMo=person.fteFromMonth,fteNew=person.fteNew;
+    if(fteMo&&fteNew&&(yr>2026||(yr===2026&&mo>=fteMo)))base=Math.round(AVAIL_DAYS*fteNew);
+    else base=Math.round(AVAIL_DAYS*person.fte);}
   return Math.max(0,base-leaveDays(person,mo,yr));
 }
 function targetDays(p,m,y){return Math.round(LT[p.level]*avail(p,m,y));}
@@ -333,20 +340,40 @@ function pa(pid,m,y){const data=m!==undefined?mdata(m,y):ma();return data.filter
 function totalAlloc(pid,m,y){return pa(pid,m,y).reduce((s,a)=>s+a.d,0);}
 function billAlloc(pid,m,y){return pa(pid,m,y).filter(a=>a.st!=="internal").reduce((s,a)=>s+a.d,0);}
 function getLOE(projId,personName,m,y){const mk=m!==undefined?mkey(m,y):mkey(curMonth,curYear);return((loe[projId]||{})[personName]||{})[mk]||0;}
-function eff(p){const fteMo=p.fteFromMonth,fteNew=p.fteNew;if(p.fte<1&&fteMo&&fteNew&&(curYear>2026||(curYear===2026&&curMonth>=fteMo)))return fteNew;return p.fte;}
 function contractExpiredByMonth(p,m,y){if(!p.contractEnd)return false;const[ey,em]=p.contractEnd.split('-').map(Number);return y>ey||(y===ey&&m>em);}
 function isContractExpiringSoon(p){if(!p.contractEnd)return false;const[ey,em]=p.contractEnd.split('-').map(Number);const diff=(ey-curYear)*12+(em-curMonth);return diff>=0&&diff<=2;}
-function sortedPeople(){const copy=[...people];if(sortMode==="alpha")copy.sort((a,b)=>a.name.localeCompare(b.name));else copy.sort((a,b)=>b.level-a.level||(a.name.localeCompare(b.name)));return copy;}
+function sortedPeople(){const c=[...people];if(sortMode==="alpha")c.sort((a,b)=>a.name.localeCompare(b.name));else c.sort((a,b)=>b.level-a.level||(a.name.localeCompare(b.name)));return c;}
 function windowMonths(){const months=[];for(let i=0;i<winSize;i++){let m=curMonth+i,y=curYear;if(m>11){m-=12;y++;}months.push({m,y,label:MONTHS[m]+" "+y});}return months;}
-function windowMetrics(months,pillarFilter){
+function windowMetrics(months){
   let tAv=0,tBi=0,tFree=0;
-  const filtPpl=pillarFilter?people.filter(p=>p.pillar===pillarFilter||p.pillar==="F&P+IL"):people;
-  for(const{m,y}of months){for(const p of filtPpl){if(contractExpiredByMonth(p,m,y))continue;const av=avail(p,m,y),bill=billAlloc(p.id,m,y),tot=totalAlloc(p.id,m,y);tAv+=av;tBi+=bill;tFree+=Math.max(0,av-tot);}}
+  for(const{m,y}of months){for(const p of people){if(contractExpiredByMonth(p,m,y))continue;const av=avail(p,m,y),bill=billAlloc(p.id,m,y),tot=totalAlloc(p.id,m,y);tAv+=av;tBi+=bill;tFree+=Math.max(0,av-tot);}}
   return{tAv,tBi,tFree,tPct:pct(tBi,tAv)};
 }
-function personStatus(p){const av=avail(p),bill=billAlloc(p.id),tgt=targetDays(p),tot=totalAlloc(p.id);if(tot>av)return"over";if(bill>=tgt)return"good";return"below";}
+function personStatus(p,m,y){
+  const mo=m!==undefined?m:curMonth,yr=y!==undefined?y:curYear;
+  const av=avail(p,mo,yr),bill=billAlloc(p.id,mo,yr),tgt=targetDays(p,mo,yr),tot=totalAlloc(p.id,mo,yr);
+  if(tot>av)return"over";if(bill>=tgt)return"good";return"below";
+}
 
-// ── NAVIGATION ──
+// Pipeline expected demand for a month
+function pipelineMonthDemand(m,y){
+  let total=0;
+  pipeline.forEach(opp=>{
+    if(!opp.expectedStart||!opp.durationMonths||!opp.daysRequired)return;
+    const start=new Date(opp.expectedStart);
+    const startM=start.getMonth(),startY=start.getFullYear();
+    const startMk=(startY-2026)*12+startM;
+    const endMk=startMk+(opp.durationMonths-1);
+    const thisMk=(y-2026)*12+m;
+    if(thisMk>=startMk&&thisMk<=endMk){
+      const dailyRate=opp.daysRequired/opp.durationMonths;
+      total+=dailyRate*(opp.probability/100);
+    }
+  });
+  return Math.round(total);
+}
+
+// ── NAV ──
 function switchView(v,el){curView=v;document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));el.classList.add("active");filterPersons=new Set();filterProjects=new Set();filterClients=new Set();filterStatus=null;filterPillar=null;render();}
 function setWin(n,el){winSize=n;document.querySelectorAll(".win-btn").forEach(b=>b.classList.remove("active"));el.classList.add("active");render();}
 function changeMonth(d){curMonth+=d;if(curMonth>11){curMonth=0;curYear++;}if(curMonth<0){curMonth=11;curYear--;}render();}
@@ -354,9 +381,7 @@ function setSort(m){sortMode=m;render();}
 function togglePerson(id){expanded.has(id)?expanded.delete(id):expanded.add(id);render();}
 function switchPanel(id,p){expandedPanels[id]=p;render();}
 function toggleProjExpand(id){expanded.has(id)?expanded.delete(id):expanded.add(id);render();}
-function toggleAlerts(){alertsOpen=!alertsOpen;render();}
-function dismissAlert(id){dismissedAlerts.add(id);render();}
-function toggleMV(id){mvOpen.has(id)?mvOpen.delete(id):mvOpen.add(id);render();}
+function dismissAlert(id){dismissedAlerts.add(id);renderAlerts();}
 function setFilterPillar(v){filterPillar=v||null;render();}
 function setFilterStatus(v){filterStatus=v||null;render();}
 function toggleFilterProject(v){if(!v)return;filterProjects.has(v)?filterProjects.delete(v):filterProjects.add(v);render();}
@@ -368,47 +393,154 @@ function clearFilterClients(){filterClients=new Set();render();}
 function toggleTheme(t){sf.themes.has(t)?sf.themes.delete(t):sf.themes.add(t);render();}
 function toggleThemeByIdx(i){const t=TC.flatMap(c=>c.t)[i];if(t!==undefined)toggleTheme(t);}
 function toggleSS(id){sf.ss.has(id)?sf.ss.delete(id):sf.ss.add(id);render();}
-function clearFilters(){sf={themes:new Set(),ss:new Set(),minScore:2};render();}
+function clearFilters(){sf={themes:new Set(),ss:new Set(),minScore:1};render();}
 
-// ── IMPLICATIONS ──
+// ── ALERTS (sticky banner) ──
 function buildImplications(){
   const imps=[];
-  const wm=windowMonths();
   people.forEach(p=>{
-    if(contractExpiredByMonth(p,wm[0].m,wm[0].y))return;
+    if(contractExpiredByMonth(p,curMonth,curYear))return;
     const av=avail(p),tot=totalAlloc(p.id),bill=billAlloc(p.id),tgt=targetDays(p),leave=leaveDays(p,curMonth,curYear);
-    if(tot>av)imps.push({id:`over-${p.id}`,severity:"red",icon:"🔴",title:`${p.name} over-allocated`,detail:`${tot}d allocated vs ${av}d available${leave>0?` (${leave}d leave)`:""}.`});
-    else if(bill<tgt&&!leave)imps.push({id:`low-${p.id}`,severity:"amber",icon:"🟡",title:`${p.name} has capacity`,detail:`${bill}d billable vs ${tgt}d target (${Math.round(LT[p.level]*100)}% of ${av}d).`});
-    if(isContractExpiringSoon(p))imps.push({id:`ct-${p.id}`,severity:"amber",icon:"⚠️",title:`${p.name} contract expiring`,detail:`${CT_LABELS[p.contractType]} ends ${p.contractEnd}.`});
+    if(tot>av)imps.push({id:`over-${p.id}`,sev:"red",icon:"🔴",title:`${p.name} over-allocated`,detail:`${tot}d allocated vs ${av}d available.`});
+    else if(bill<tgt&&!leave)imps.push({id:`low-${p.id}`,sev:"amber",icon:"🟡",title:`${p.name} has capacity`,detail:`${bill}d billable vs ${tgt}d target.`});
+    if(isContractExpiringSoon(p))imps.push({id:`ct-${p.id}`,sev:"amber",icon:"⚠️",title:`${p.name} contract expiring`,detail:`${CT_LABELS[p.contractType]} ends ${p.contractEnd}.`});
   });
   projects.filter(p=>p.endDate&&p.status==="live").forEach(proj=>{
-    const[ey,em]=proj.endDate.split('-').map(Number);
-    const diff=(ey-curYear)*12+(em-curMonth);
-    if(diff>=0&&diff<=1)imps.push({id:`end-${proj.id}`,severity:"blue",icon:"⏳",title:`${proj.name} ending soon`,detail:`Project ends ${proj.endDate}.`});
+    const[ey,em]=proj.endDate.split('-').map(Number);const diff=(ey-curYear)*12+(em-curMonth);
+    if(diff>=0&&diff<=1)imps.push({id:`end-${proj.id}`,sev:"blue",icon:"⏳",title:`${proj.name} ending soon`,detail:`Ends ${proj.endDate}.`});
   });
   return imps;
 }
 
+function toggleAlerts(){
+  alertsOpen=!alertsOpen;
+  document.getElementById('alerts-body').classList.toggle('open',alertsOpen);
+  document.getElementById('alerts-chevron').textContent=alertsOpen?'▲ collapse':'▼ expand';
+}
+
+function renderAlerts(){
+  const imps=buildImplications().filter(a=>!dismissedAlerts.has(a.id));
+  document.getElementById('alert-count').textContent=imps.length;
+  if(alertsOpen){
+    const html=imps.length===0
+      ?`<div style="padding:8px 0;font-size:11px;color:var(--text-3);">No active alerts 🎉</div>`
+      :imps.map(imp=>`<div class="impl-item"><div class="impl-icon impl-${imp.sev==="red"?"red":imp.sev==="amber"?"amber":"blue"}">${imp.icon}</div><div class="impl-body"><div class="impl-title">${imp.title}</div><div class="impl-detail">${imp.detail}</div></div><button onclick="dismissAlert('${imp.id}')" style="padding:3px 9px;border:1px solid var(--border-strong);border-radius:99px;background:transparent;cursor:pointer;font-size:10px;font-family:var(--fb);color:var(--text-2);flex-shrink:0;">OK</button></div>`).join("");
+    document.getElementById('alerts-body').innerHTML=html;
+  }
+}
+
+// ── PIPELINE POPOVER ──
+function showPipelinePopover(){
+  document.getElementById('pp-overlay')?.remove();
+  document.getElementById('pp-pop')?.remove();
+  const wm=windowMonths();
+  const rows=pipeline.map(opp=>{
+    const prob=opp.probability||0;
+    const monthDemands=wm.map(({m,y})=>{
+      if(!opp.expectedStart||!opp.durationMonths||!opp.daysRequired)return 0;
+      const start=new Date(opp.expectedStart);
+      const startMk=(start.getFullYear()-2026)*12+start.getMonth();
+      const endMk=startMk+(opp.durationMonths-1);
+      const thisMk=(y-2026)*12+m;
+      if(thisMk<startMk||thisMk>endMk)return 0;
+      return Math.round((opp.daysRequired/opp.durationMonths)*(prob/100)*10)/10;
+    });
+    const totalWtd=Math.round(monthDemands.reduce((s,d)=>s+d,0)*10)/10;
+    const stageCol=STAGE_COLS[opp.status]||"#888";
+    return`<div style="padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;">
+        <div>
+          <div style="font-weight:600;font-size:12px;color:var(--plum);">${opp.name}</div>
+          <div style="font-size:10px;color:var(--text-3);">${opp.client}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <span class="pill" style="background:${stageCol}20;color:${stageCol};border:1px solid ${stageCol}40;">${opp.status}</span>
+          <div style="font-size:10px;color:var(--text-3);margin-top:2px;">${prob}% · ${opp.daysRequired||'?'}d over ${opp.durationMonths||'?'}mo</div>
+        </div>
+      </div>
+      ${opp.expectedStart?`<div style="font-size:10px;color:var(--text-3);">Start: ${opp.expectedStart} · Wtd demand this window: <strong>${totalWtd}d</strong></div>`:'<div style="font-size:10px;color:var(--text-3);">No start date set</div>'}
+    </div>`;
+  }).join("");
+
+  const totalDemand=pipelineMonthDemand(curMonth,curYear);
+  const{tFree}=windowMetrics(windowMonths());
+
+  const overlay=document.createElement('div');overlay.id='pp-overlay';overlay.className='popover-overlay';
+  overlay.onclick=()=>{overlay.remove();document.getElementById('pp-pop')?.remove();};
+  const pop=document.createElement('div');pop.id='pp-pop';pop.className='pipeline-popover';
+  pop.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);">
+    <div><div style="font-family:var(--fh);font-size:16px;font-weight:600;color:var(--plum);">🔮 Pipeline opportunities</div>
+    <div style="font-size:11px;color:var(--text-3);">Expected demand vs free capacity — ${MONTHS[curMonth]} ${curYear}</div></div>
+    <button onclick="document.getElementById('pp-overlay').click()" style="background:transparent;border:none;font-size:20px;cursor:pointer;color:var(--text-3);">×</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+    <div style="background:var(--off-white);border-radius:var(--rsm);padding:8px 10px;text-align:center;">
+      <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.04em;">Wtd demand this month</div>
+      <div style="font-family:var(--fh);font-size:24px;font-weight:600;color:var(--pipeline);">${totalDemand}d</div>
+    </div>
+    <div style="background:var(--off-white);border-radius:var(--rsm);padding:8px 10px;text-align:center;">
+      <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.04em;">Free capacity this month</div>
+      <div style="font-family:var(--fh);font-size:24px;font-weight:600;color:${tFree>=totalDemand?"var(--clover)":"var(--red)"};">${tFree}d</div>
+    </div>
+  </div>
+  ${rows||'<div style="font-size:11px;color:var(--text-3);padding:10px 0;">No active pipeline opportunities.</div>'}`;
+  document.body.appendChild(overlay);document.body.appendChild(pop);
+}
+
+// ── HOLIDAY POPOVER ──
+function showHolidayPopover(){
+  document.getElementById('hol-overlay')?.remove();document.getElementById('hol-pop')?.remove();
+  const wm=windowMonths();
+  const leaveRows=[];
+  wm.forEach(({m,y,label})=>{
+    people.forEach(p=>{
+      const ld=leaveDays(p,m,y);
+      if(ld>0)leaveRows.push({name:p.name,initials:p.initials,col:p.col,tc:p.tc,days:ld,month:label});
+    });
+  });
+  const rows=leaveRows.map(r=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
+    <div class="pgcard-av" style="background:${r.col};color:${r.tc};width:28px;height:28px;font-size:9px;flex-shrink:0;">${r.initials}</div>
+    <div style="flex:1;font-size:12px;font-weight:500;color:var(--plum);">${r.name}</div>
+    <div style="font-size:11px;color:var(--text-3);">${r.month}</div>
+    <div style="font-size:12px;font-weight:600;color:var(--leave);">🌴 ${r.days}d</div>
+  </div>`).join("");
+  const overlay=document.createElement('div');overlay.id='hol-overlay';overlay.className='popover-overlay';
+  overlay.onclick=()=>{overlay.remove();document.getElementById('hol-pop')?.remove();};
+  const pop=document.createElement('div');pop.id='hol-pop';pop.className='pipeline-popover';
+  pop.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);">
+    <div><div style="font-family:var(--fh);font-size:16px;font-weight:600;color:var(--plum);">🌴 Leave this ${winSize>1?"window":"month"}</div>
+    <div style="font-size:11px;color:var(--text-3);">${leaveRows.length} leave periods across the team</div></div>
+    <button onclick="document.getElementById('hol-overlay').click()" style="background:transparent;border:none;font-size:20px;cursor:pointer;color:var(--text-3);">×</button>
+  </div>
+  ${rows||'<div style="font-size:11px;color:var(--text-3);padding:10px 0;">No leave recorded this period.</div>'}`;
+  document.body.appendChild(overlay);document.body.appendChild(pop);
+}
+
 // ── PERSON DONUT POPOVER ──
 function showPersonDonut(pid){
-  const person=people.find(p=>p.id===pid);
-  if(!person)return;
+  const person=people.find(p=>p.id===pid);if(!person)return;
   const als=pa(person.id),av=avail(person),free=Math.max(0,av-als.reduce((s,a)=>s+a.d,0));
-  const content=buildPersonDonut(person,als,free,av);
-  document.getElementById('person-donut-popover')?.remove();
-  document.getElementById('person-donut-overlay')?.remove();
-  const overlay=document.createElement('div');
-  overlay.id='person-donut-overlay';overlay.className='popover-overlay';
-  overlay.onclick=()=>{overlay.remove();document.getElementById('person-donut-popover')?.remove();};
-  const pop=document.createElement('div');
-  pop.id='person-donut-popover';pop.className='person-popover';
-  pop.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:10px;"><div class="pgcard-av" style="background:${person.col};color:${person.tc};">${person.initials}</div><div><div style="font-family:var(--fh);font-size:15px;font-weight:600;color:var(--plum);">${person.name}</div><div style="font-size:10px;color:var(--text-3);">${titleOf(person)} · L${person.level} · ${MONTHS[curMonth]} ${curYear}</div></div><button onclick="document.getElementById('person-donut-overlay').click()" style="margin-left:auto;background:transparent;border:none;font-size:20px;cursor:pointer;color:var(--text-3);">×</button></div>${content}`;
-  document.body.appendChild(overlay);
-  document.body.appendChild(pop);
+  document.getElementById('pd-overlay')?.remove();document.getElementById('pd-pop')?.remove();
+  const overlay=document.createElement('div');overlay.id='pd-overlay';overlay.className='popover-overlay';
+  overlay.onclick=()=>{overlay.remove();document.getElementById('pd-pop')?.remove();};
+  const pop=document.createElement('div');pop.id='pd-pop';pop.className='pipeline-popover';
+  pop.style.minWidth='300px';
+  pop.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);">
+    <div class="pgcard-av" style="background:${person.col};color:${person.tc};">${person.initials}</div>
+    <div><div style="font-family:var(--fh);font-size:15px;font-weight:600;color:var(--plum);">${person.name}</div>
+    <div style="font-size:10px;color:var(--text-3);">${titleOf(person)} · ${MONTHS[curMonth]} ${curYear}</div></div>
+    <button onclick="document.getElementById('pd-overlay').click()" style="margin-left:auto;background:transparent;border:none;font-size:20px;cursor:pointer;color:var(--text-3);">×</button>
+  </div>${buildPersonDonut(person,als,free,av)}`;
+  document.body.appendChild(overlay);document.body.appendChild(pop);
 }
 
 function buildPersonDonut(person,als,free,av){
-  const donutData=als.filter(a=>a.d>0).map(a=>{const proj=projects.find(x=>x.id===a.pr);return{label:proj?proj.name:a.pr,val:a.d,col:stCol(a.st),isPipeline:a.st==="pipeline"};});
+  const donutData=als.filter(a=>a.d>0).map(a=>{
+    const proj=projects.find(x=>x.id===a.pr)||{name:a.prName||a.pr};
+    return{label:proj.name,val:a.d,col:stCol(a.st),isPipeline:a.st==="pipeline"};
+  });
+  const leaveD=leaveDays(person,curMonth,curYear);
+  if(leaveD>0)donutData.push({label:"Leave 🌴",val:leaveD,col:"var(--leave)",isPipeline:false});
   if(free>0)donutData.push({label:"Free",val:free,col:"var(--free-bar)",isPipeline:false});
   const tot=donutData.reduce((s,d)=>s+d.val,0);
   if(!tot)return`<div style='padding:20px;text-align:center;font-size:11px;color:var(--text-3);'>No allocations this month.</div>`;
@@ -422,48 +554,91 @@ function buildPersonDonut(person,als,free,av){
     const lg=angle>Math.PI?1:0;
     return`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 ${lg},1 ${x2.toFixed(1)},${y2.toFixed(1)} L${ix2.toFixed(1)},${iy2.toFixed(1)} A${ir},${ir} 0 ${lg},0 ${ix1.toFixed(1)},${iy1.toFixed(1)} Z" fill="${d.col}" stroke="white" stroke-width="1.5"/>`;
   }).join("");
-  const billD=donutData.filter(d=>d.label!=="Free"&&!d.isPipeline).reduce((s,d)=>s+d.val,0);
+  const billD=als.filter(a=>a.st!=="internal").reduce((s,a)=>s+a.d,0);
   const svg=`<svg viewBox="0 0 180 180" style="width:160px;height:160px;flex-shrink:0;">${paths}<text x="90" y="85" text-anchor="middle" font-family="'Crimson Text',serif" font-size="20" font-weight="600" fill="#1E1125">${pct(billD,av)}%</text><text x="90" y="100" text-anchor="middle" font-family="'Public Sans',sans-serif" font-size="10" fill="#604D64">billable</text></svg>`;
-  const leg=donutData.map(d=>`<div style="display:flex;align-items:center;gap:5px;font-size:11px;margin-bottom:4px;"><span style="width:8px;height:8px;border-radius:2px;background:${d.col};flex-shrink:0;display:inline-block;border:1px solid rgba(0,0,0,0.08);${d.isPipeline?"background-image:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(0,0,0,0.2) 2px,rgba(0,0,0,0.2) 4px);":""}"></span><span style="flex:1;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.label}${d.isPipeline?" 🔮":""}</span><span style="font-weight:600;color:var(--plum);white-space:nowrap;">${d.val}d</span></div>`).join("");
+  const leg=donutData.map(d=>`<div style="display:flex;align-items:center;gap:5px;font-size:11px;margin-bottom:4px;"><span style="width:8px;height:8px;border-radius:50%;background:${d.col};flex-shrink:0;display:inline-block;${d.isPipeline?"background-image:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(0,0,0,0.2) 2px,rgba(0,0,0,0.2) 4px);":""}"></span><span style="flex:1;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.label}</span><span style="font-weight:600;color:var(--plum);">${d.val}d</span></div>`).join("");
   return`<div style="display:flex;flex-direction:column;align-items:center;gap:10px;">${svg}<div style="width:100%;">${leg}</div></div>`;
 }
 
 // ── OVERVIEW ──
 function buildMainDonut(){
   const wm=windowMonths();
-  const tots={live:0,contracted:0,pipeline:0,internal:0};let totAv=0;
-  for(const{m,y}of wm){const md=mdata(m,y);for(const k of Object.keys(tots))tots[k]+=md.filter(a=>a.st===k).reduce((s,a)=>s+a.d,0);totAv+=people.filter(p=>!contractExpiredByMonth(p,m,y)).reduce((s,p)=>s+avail(p,m,y),0);}
+  const tots={live:0,contracted:0,pipeline:0,leave:0};let totAvBase=0;
+  for(const{m,y}of wm){
+    const md=mdata(m,y);
+    for(const k of['live','contracted','pipeline'])tots[k]+=md.filter(a=>a.st===k).reduce((s,a)=>s+a.d,0);
+    people.filter(p=>!contractExpiredByMonth(p,m,y)).forEach(p=>{
+      totAvBase+=AVAIL_DAYS*(p.fte<1?p.fte:1);
+      tots.leave+=leaveDays(p,m,y);
+    });
+  }
   const totBill=tots.live+tots.contracted;
-  const freeD=Math.max(0,totAv-Object.values(tots).reduce((s,v)=>s+v,0));
-  const donutData=[{label:"Live",val:tots.live,col:"var(--live)"},{label:"Contracted",val:tots.contracted,col:"var(--contracted)"},{label:"Pipeline",val:tots.pipeline,col:"var(--pipeline)",hatch:true},{label:"Internal",val:tots.internal,col:"var(--internal)"},{label:"Free",val:freeD,col:"var(--free-bar)"}].filter(d=>d.val>0);
+  const totAv=people.filter(p=>!contractExpiredByMonth(p,curMonth,curYear)).reduce((s,p)=>s+avail(p),0)*winSize;
+  const freeD=Math.max(0,totAv-tots.live-tots.contracted-tots.pipeline);
+  const donutData=[
+    {label:"Live",val:tots.live,col:"var(--live)"},
+    {label:"Contracted",val:tots.contracted,col:"var(--contracted)"},
+    {label:"Pipeline",val:tots.pipeline,col:"var(--pipeline)",hatch:true},
+    {label:"Leave 🌴",val:tots.leave,col:"var(--leave)"},
+    {label:"Free",val:freeD,col:"var(--free-bar)"}
+  ].filter(d=>d.val>0);
   const dtot=donutData.reduce((s,d)=>s+d.val,0);
   let ca=-Math.PI/2;const cx=100,cy=100,r=88,ir=48;
-  const paths=donutData.map(d=>{const angle=(d.val/dtot)*2*Math.PI;const x1=cx+r*Math.cos(ca),y1=cy+r*Math.sin(ca);ca+=angle;const x2=cx+r*Math.cos(ca),y2=cy+r*Math.sin(ca);const ix1=cx+ir*Math.cos(ca-angle),iy1=cy+ir*Math.sin(ca-angle);const ix2=cx+ir*Math.cos(ca),iy2=cy+ir*Math.sin(ca);const lg=angle>Math.PI?1:0;return`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 ${lg},1 ${x2.toFixed(1)},${y2.toFixed(1)} L${ix2.toFixed(1)},${iy2.toFixed(1)} A${ir},${ir} 0 ${lg},0 ${ix1.toFixed(1)},${iy1.toFixed(1)} Z" fill="${d.col}" stroke="white" stroke-width="2"/>`;}).join("");
+  const paths=donutData.map(d=>{
+    const angle=(d.val/dtot)*2*Math.PI;
+    const x1=cx+r*Math.cos(ca),y1=cy+r*Math.sin(ca);ca+=angle;
+    const x2=cx+r*Math.cos(ca),y2=cy+r*Math.sin(ca);
+    const ix1=cx+ir*Math.cos(ca-angle),iy1=cy+ir*Math.sin(ca-angle);
+    const ix2=cx+ir*Math.cos(ca),iy2=cy+ir*Math.sin(ca);
+    const lg=angle>Math.PI?1:0;
+    return`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 ${lg},1 ${x2.toFixed(1)},${y2.toFixed(1)} L${ix2.toFixed(1)},${iy2.toFixed(1)} A${ir},${ir} 0 ${lg},0 ${ix1.toFixed(1)},${iy1.toFixed(1)} Z" fill="${d.col}" stroke="white" stroke-width="2"/>`;
+  }).join("");
   const bPct=pct(totBill,totAv);
   const svg=`<svg viewBox="0 0 200 200" style="width:200px;height:200px;">${paths}<text x="100" y="94" text-anchor="middle" font-family="'Crimson Text',serif" font-size="26" font-weight="600" fill="#1E1125">${bPct}%</text><text x="100" y="112" text-anchor="middle" font-family="'Public Sans',sans-serif" font-size="11" fill="#604D64">billable</text></svg>`;
-  const leg=donutData.map(d=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:2px;background:${d.col};flex-shrink:0;display:inline-block;border:1px solid rgba(0,0,0,0.08);${d.hatch?"background-image:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,0.5) 2px,rgba(255,255,255,0.5) 4px);":""}"></span><span style="flex:1;color:var(--text-2);">${d.label}</span><span style="font-weight:600;color:var(--plum);">${d.val}d</span><span style="color:var(--text-3);font-size:10px;">${pct(d.val,totAv)}%</span></div>`).join("");
+  const leg=donutData.map(d=>`<div style="display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:5px;"><span style="width:10px;height:10px;border-radius:50%;background:${d.col};flex-shrink:0;display:inline-block;${d.hatch?"background-image:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,0.5) 2px,rgba(255,255,255,0.5) 4px);":""}"></span><span style="flex:1;color:var(--text-2);">${d.label}</span><span style="font-weight:600;color:var(--plum);">${d.val}d</span></div>`).join("");
   return`<div style="display:flex;flex-direction:column;align-items:center;gap:12px;">${svg}<div style="width:100%;">${leg}</div></div>`;
+}
+
+function buildSkillsHeatmap(){
+  // Show top sub-services by team depth
+  const ssDepth=SS.map(s=>{
+    const scorers=people.filter(p=>(p.skills||{})[s.id]>=1);
+    const strong=people.filter(p=>(p.skills||{})[s.id]>=3);
+    return{...s,count:scorers.length,strong:strong.length,scorers};
+  }).sort((a,b)=>b.count-a.count).slice(0,12);
+  const maxCount=people.length;
+  const rows=ssDepth.map(s=>{
+    const dotCols=s.scorers.map(p=>{
+      const score=(p.skills||{})[s.id]||0;
+      const opacity=score===3?1:score===2?0.6:0.3;
+      return`<div class="heatmap-dot" style="background:${p.col};opacity:${opacity};" title="${p.name}: ${score}⭐"></div>`;
+    }).join("");
+    return`<div class="heatmap-row">
+      <div class="heatmap-label" title="${s.l}">${s.l}</div>
+      <div class="heatmap-dots">${dotCols}</div>
+      <div style="font-size:10px;color:var(--text-3);margin-left:4px;white-space:nowrap;">${s.count}/${maxCount}</div>
+    </div>`;
+  }).join("");
+  return`<div style="font-size:9px;color:var(--text-3);margin-bottom:6px;">Dot = team member · Opacity = depth (bright=expert)</div>${rows}`;
 }
 
 function renderOverview(){
   const wm=windowMonths();
   const{tAv,tBi,tFree,tPct}=windowMetrics(wm);
   const winLabel=winSize>1?` (${winSize}-month aggregate)`:" — "+MONTHS[curMonth]+" "+curYear;
-  const impls=buildImplications();
-  const activeImpls=impls.filter(a=>!dismissedAlerts.has(a.id));
-  const belowTarget=people.filter(p=>{
+
+  // Cards
+  const freeList=people.filter(p=>{
     if(contractExpiredByMonth(p,curMonth,curYear))return false;
     const leave=leaveDays(p,curMonth,curYear);
-    if(leave>0&&billAlloc(p.id)>=targetDays(p))return false;
-    return personStatus(p)==="below";
+    const bill=billAlloc(p.id),tgt=targetDays(p);
+    if(leave>0&&bill>=tgt)return false;
+    return personStatus(p)==="below"||personStatus(p)==="good"&&Math.max(0,avail(p)-totalAlloc(p.id))>2;
   });
+  const freeDays=people.filter(p=>!contractExpiredByMonth(p,curMonth,curYear)).reduce((s,p)=>s+Math.max(0,avail(p)-totalAlloc(p.id)),0);
 
-  // Pipeline weighted capacity
-  const pipelineWtd=Math.round(pipeline.reduce((s,p)=>{
-    const prob=(p.probability||0)/100;
-    const pAllocs=ma().filter(a=>a.st==='pipeline');
-    return s+pAllocs.reduce((s2,a)=>s2+a.d*prob,0);
-  },0));
+  const onLeaveNow=people.filter(p=>leaveDays(p,curMonth,curYear)>0);
+  const pipelineDemand=pipelineMonthDemand(curMonth,curYear);
 
   const cards=`<div class="summary">
     <div class="scard" style="border-top:3px solid var(--clover);">
@@ -471,32 +646,20 @@ function renderOverview(){
       <div class="scard-val ${tPct>=80?"cg":tPct>=60?"ca":"cr"}">${tPct}%</div>
       <div class="scard-sub">${tBi} of ${tAv} days client-paid</div>
     </div>
-    <div class="scard" style="border-top:3px solid var(--lavender);">
-      <div class="scard-label">🗓️ Available to allocate</div>
-      <div class="scard-val ${tFree>20?"cg":tFree>0?"ca":"cr"}">${tFree}d</div>
-      <div class="scard-sub">After leave${winSize>1?" · "+winSize+"-month":""}  </div>
-    </div>
     <div class="scard" style="border-top:3px solid var(--naranja);">
-      <div class="scard-label">💚 Capacity available</div>
-      <div class="scard-val ${belowTarget.length===0?"cg":"ca"}">${belowTarget.length}</div>
-      <div class="scard-names">${belowTarget.map(p=>firstName(p.name)).join(", ")||"Everyone at target 🎉"}</div>
+      <div class="scard-label">💚 Available to allocate</div>
+      <div class="scard-val ${freeDays>15?"cg":freeDays>0?"ca":"cr"}">${freeDays}d</div>
+      <div class="scard-names">${people.filter(p=>!contractExpiredByMonth(p,curMonth,curYear)&&Math.max(0,avail(p)-totalAlloc(p.id))>2).map(p=>firstName(p.name)).join(", ")||"Team fully allocated"}</div>
     </div>
-    <div class="scard" style="border-top:3px solid var(--pipeline);">
-      <div class="scard-label">🔮 Pipeline capacity</div>
-      <div class="scard-val cp">${pipelineWtd}d</div>
-      <div class="scard-sub">Probability-weighted · ${pipeline.length} opportunities</div>
+    <div class="scard clickable" style="border-top:3px solid var(--pipeline);" onclick="showPipelinePopover()">
+      <div class="scard-label">🔮 Pipeline demand</div>
+      <div class="scard-val cp">${pipelineDemand}d</div>
+      <div class="scard-sub">Wtd expected this month · ${pipeline.length} opps · click for detail</div>
     </div>
-  </div>`;
-
-  const fpM=windowMetrics(wm,"F&P"),ilM=windowMetrics(wm,"IL");
-  const pillarStrip=`<div class="pillar-strip">
-    <div class="pm-card"><div class="pm-title">Funds &amp; Programs (F&amp;P)</div>
-      <div class="pm-val ${fpM.tPct>=80?"cg":fpM.tPct>=60?"ca":"cr"}">${fpM.tPct}% billable</div>
-      <div class="pm-detail">${fpM.tBi}/${fpM.tAv}d · ${fpM.tFree}d free</div>
-    </div>
-    <div class="pm-card"><div class="pm-title">Immersive Learning (IL)</div>
-      <div class="pm-val ${ilM.tPct>=80?"cg":ilM.tPct>=60?"ca":"cr"}">${ilM.tPct}% billable</div>
-      <div class="pm-detail">${ilM.tBi}/${ilM.tAv}d · ${ilM.tFree}d free</div>
+    <div class="scard clickable" style="border-top:3px solid var(--leave);" onclick="showHolidayPopover()">
+      <div class="scard-label">🌴 On leave</div>
+      <div class="scard-val" style="color:var(--leave);">${onLeaveNow.length}</div>
+      <div class="scard-names">${onLeaveNow.map(p=>firstName(p.name)+"  ("+leaveDays(p,curMonth,curYear)+"d)").join(", ")||"No leave this month"}</div>
     </div>
   </div>`;
 
@@ -521,10 +684,9 @@ function renderOverview(){
   const loeProj=projects.filter(p=>p.id!=="INT").map(proj=>{
     let loeTot=0,allocTot=0;
     for(const{m,y}of wm){
-      const pA=mdata(m,y).filter(a=>a.pr===proj.id);
-      allocTot+=pA.reduce((s,a)=>s+a.d,0);
+      allocTot+=mdata(m,y).filter(a=>a.pr===proj.id).reduce((s,a)=>s+a.d,0);
       const projLoe=loe[proj.id]||{};
-      Object.values(projLoe).forEach(byMonth=>{const mk=mkey(m,y);loeTot+=(byMonth[mk]||0);});
+      Object.values(projLoe).forEach(byMonth=>{loeTot+=(byMonth[mkey(m,y)]||0);});
     }
     return{proj,loeTot,allocTot};
   }).filter(r=>r.loeTot>0||r.allocTot>0).sort((a,b)=>b.loeTot-a.loeTot);
@@ -532,23 +694,16 @@ function renderOverview(){
   const loeProjHTML=loeProj.map(r=>{
     const diff=r.allocTot-r.loeTot;
     const col=r.loeTot===0?"var(--red)":Math.abs(diff)<=1?"var(--clover)":Math.abs(diff)<=3?"var(--naranja)":"var(--red)";
-    const diffStr=diff===0?"✓ on budget":diff>0?`+${diff}d over`:`${diff}d under`;
-    return`<div style="display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--border);">
-      <div style="min-width:120px;font-size:11px;color:var(--plum);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.proj.name}</div>
-      <div style="flex:1;height:10px;background:var(--pebble);border-radius:3px;overflow:hidden;position:relative;">
-        <div style="position:absolute;top:0;left:0;width:${pct(r.loeTot,maxL)}%;height:100%;background:var(--border-strong);border-radius:3px;opacity:0.35;"></div>
-        <div style="position:absolute;top:0;left:0;width:${pct(r.allocTot,maxL)}%;height:100%;background:${col};border-radius:3px;opacity:0.85;"></div>
+    const diffStr=diff===0?"✓":diff>0?`+${diff}d`:`${diff}d`;
+    return`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--border);">
+      <div style="min-width:110px;font-size:10px;color:var(--plum);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.proj.name}</div>
+      <div style="flex:1;height:8px;background:var(--pebble);border-radius:3px;overflow:hidden;position:relative;">
+        <div style="position:absolute;top:0;left:0;width:${pct(r.loeTot,maxL)}%;height:100%;background:var(--border-strong);opacity:0.35;"></div>
+        <div style="position:absolute;top:0;left:0;width:${pct(r.allocTot,maxL)}%;height:100%;background:${col};opacity:0.85;"></div>
       </div>
-      <div style="min-width:100px;text-align:right;font-size:11px;font-weight:600;color:${col};">${r.allocTot}d / ${r.loeTot}d</div>
-      <div style="min-width:65px;text-align:right;font-size:10px;color:${col};">${diffStr}</div>
+      <div style="min-width:80px;text-align:right;font-size:10px;font-weight:600;color:${col};">${r.allocTot}/${r.loeTot}d <span style="font-size:9px;">${diffStr}</span></div>
     </div>`;
   }).join("");
-
-  const implHTML=activeImpls.length===0
-    ?`<div style="padding:10px;text-align:center;font-size:11px;color:var(--text-3);">No active alerts 🎉</div>`
-    :activeImpls.map(imp=>`<div class="impl-item"><div class="impl-icon impl-${imp.severity==="red"?"red":imp.severity==="amber"?"amber":"blue"}">${imp.icon}</div><div class="impl-body"><div class="impl-title">${imp.title}</div><div class="impl-detail">${imp.detail}</div></div><div style="flex-shrink:0;"><button onclick="dismissAlert('${imp.id}')" style="padding:3px 9px;border:1px solid var(--border-strong);border-radius:99px;background:transparent;cursor:pointer;font-size:10px;font-family:var(--fb);color:var(--text-2);">OK</button></div></div>`).join("");
-
-  const alertsSec=`<div class="alerts-panel"><div class="alerts-panel-header" onclick="toggleAlerts()"><span style="font-family:var(--fh);font-size:15px;font-weight:600;color:var(--plum);">🔔 Implications &amp; alerts</span><span class="alert-badge">${activeImpls.length}</span><span style="margin-left:auto;font-size:11px;color:var(--text-3);">${alertsOpen?"▲ collapse":"▼ expand"}</span></div><div class="alerts-body ${alertsOpen?"open":""}">${implHTML}</div></div>`;
 
   const aiPanel=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-top:12px;">
     <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--plum);">
@@ -562,27 +717,40 @@ function renderOverview(){
     </div>
   </div>`;
 
-  document.getElementById("view").innerHTML=cards+pillarStrip+`<div class="ov-3col">
+  document.getElementById("view").innerHTML=cards+`<div class="ov-3col">
     <div class="ovsec"><div class="ovsec-title">Team days${winLabel}</div>${buildMainDonut()}</div>
-    <div class="ovsec"><div class="ovsec-title">Utilisation by level</div>${levelHTML}</div>
-    <div class="ovsec"><div class="ovsec-title">LOE budget vs allocated${winSize>1?" (aggregate)":""}</div>${loeProjHTML||'<div style="padding:20px;text-align:center;font-size:11px;color:var(--text-3);">No LOE data yet.</div>'}<div style="margin-top:6px;font-size:10px;color:var(--text-3);font-style:italic;">Grey = LOE budget · Coloured = allocated</div></div>
-  </div>`+alertsSec+aiPanel;
+    <div class="ovsec"><div class="ovsec-title">Utilisation by level</div>${levelHTML}<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px;"><div class="ovsec-title">Skills depth</div>${buildSkillsHeatmap()}</div></div>
+    <div class="ovsec"><div class="ovsec-title">LOE budget vs allocated${winSize>1?" (aggregate)":""}</div>${loeProjHTML||'<div style="padding:12px 0;font-size:11px;color:var(--text-3);">No LOE data yet.</div>'}<div style="margin-top:6px;font-size:9px;color:var(--text-3);font-style:italic;">Grey = LOE budget · Coloured = allocated. Does not reconcile vs budget.</div></div>
+  </div>`+aiPanel;
   renderAISuggs();
 }
 
 // ── PEOPLE ──
 function renderPeople(){
+  const legend=`<div class="tab-legend">
+    <span class="filter-label">Key:</span>
+    <div class="legend-item"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;border-top:3px solid var(--clover);"></span>On target</div>
+    <div class="legend-item"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;border-top:3px solid var(--naranja);"></span>Capacity available</div>
+    <div class="legend-item"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;border-top:3px solid var(--red);"></span>Over contract</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--live);"></span>Live</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--contracted);"></span>Contracted</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--pipeline);background-image:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,0.5) 2px,rgba(255,255,255,0.5) 4px);"></span>Pipeline</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--leave);"></span>Leave</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--free-bar);"></span>Free</div>
+    <div class="legend-item"><div style="width:18px;height:2px;background:var(--plum);"></div>Target</div>
+  </div>`;
+
   const projBtns=projects.filter(p=>p.id!=="INT").map(p=>`<button class="sort-btn ${filterProjects.has(p.id)?"active":""}" style="font-size:10px;padding:2px 8px;margin:1px;" onclick="toggleFilterProject('${p.id}')">${p.name}</button>`).join("");
   const filterBar=`<div class="filter-bar">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
       <span class="filter-label">Sort:</span>
       <button class="sort-btn ${sortMode==="seniority"?"active":""}" onclick="setSort('seniority')">Seniority</button>
       <button class="sort-btn ${sortMode==="alpha"?"active":""}" onclick="setSort('alpha')">A–Z</button>
-      <span class="filter-label" style="margin-left:10px;">Pillar:</span>
+      <span class="filter-label" style="margin-left:8px;">Pillar:</span>
       <button class="sort-btn ${!filterPillar?"active":""}" onclick="setFilterPillar(null)">All</button>
       <button class="sort-btn ${filterPillar==="F&P"?"active":""}" onclick="setFilterPillar('F&P')">F&amp;P</button>
       <button class="sort-btn ${filterPillar==="IL"?"active":""}" onclick="setFilterPillar('IL')">IL</button>
-      <span class="filter-label" style="margin-left:10px;">Status:</span>
+      <span class="filter-label" style="margin-left:8px;">Status:</span>
       <button class="sort-btn ${!filterStatus?"active":""}" onclick="setFilterStatus(null)">All</button>
       <button class="sort-btn ${filterStatus==="over"?"active":""}" onclick="setFilterStatus('over')">⚠️ Over</button>
       <button class="sort-btn ${filterStatus==="below"?"active":""}" onclick="setFilterStatus('below')">💚 Capacity</button>
@@ -594,76 +762,74 @@ function renderPeople(){
     </div>
   </div>`;
 
-  if(winSize>1){document.getElementById("view").innerHTML=filterBar+renderPeopleMulti(windowMonths());return;}
+  if(winSize>1){document.getElementById("view").innerHTML=legend+filterBar+renderPeopleMulti(windowMonths());return;}
 
-  let displayPeople=sortedPeople().filter(p=>!contractExpiredByMonth(p,curMonth,curYear));
-  if(filterProjects.size>0){const onP=new Set(ma().filter(a=>filterProjects.has(a.pr)).map(a=>a.p));displayPeople=displayPeople.filter(p=>onP.has(p.id));}
-  if(filterPillar)displayPeople=displayPeople.filter(p=>p.pillar===filterPillar||p.pillar==="F&P+IL");
-  if(filterStatus)displayPeople=displayPeople.filter(p=>personStatus(p)===filterStatus);
+  let dp=sortedPeople().filter(p=>!contractExpiredByMonth(p,curMonth,curYear));
+  if(filterProjects.size>0){const onP=new Set(ma().filter(a=>filterProjects.has(a.pr)).map(a=>a.p));dp=dp.filter(p=>onP.has(p.id));}
+  if(filterPillar)dp=dp.filter(p=>p.pillar===filterPillar||p.pillar==="F&P+IL");
+  if(filterStatus)dp=dp.filter(p=>personStatus(p)===filterStatus);
 
-  const cards=displayPeople.map(person=>{
-    const av=avail(person),eF=eff(person);
-    const als=pa(person.id),total=als.reduce((s,a)=>s+a.d,0);
+  const cards=dp.map(person=>{
+    const av=avail(person),als=pa(person.id),total=als.reduce((s,a)=>s+a.d,0);
     const bill=billAlloc(person.id),free=Math.max(0,av-total);
-    const tgt=targetDays(person),tPct=Math.round(LT[person.level]*100);
+    const tgt=targetDays(person),tPct2=Math.round(LT[person.level]*100);
+    const leaveD=leaveDays(person,curMonth,curYear);
     const isExp=expanded.has(person.id),panel=expandedPanels[person.id]||"alloc";
-    const riskFlag=isContractExpiringSoon(person),leave=leaveDays(person,curMonth,curYear);
-    const bW=Math.round(eF*100),isOver=total>av;
+    const riskFlag=isContractExpiringSoon(person),isOver=total>av;
     const cardStatus=isOver?"over":bill>=tgt?"good":"below";
     const _pillars=person.pillar==="F&P+IL"?["F&P","IL"]:[person.pillar];
     const pBadge=_pillars.map(p=>`<span class="pill ${p==="IL"?"p-teal":"p-pl"}" style="font-size:9px;">${p==="F&P"?"F&amp;P":p}</span>`).join(" ");
-    const riskBadge=riskFlag?`<span class="pill p-risk" style="font-size:9px;">⚠️</span>`:"";
-    const leaveBadge=leave>0?`<span title="${leave}d leave this month" style="font-size:14px;cursor:help;">🌴</span>`:"";
-    const solidAls=als.filter(a=>a.st!=="pipeline");
-    const pipelineAls=als.filter(a=>a.st==="pipeline");
-    const segs=solidAls.map(a=>`<div style="width:${pct(a.d,av)*bW/100}%;background:${stCol(a.st)};height:100%;"></div>`).join("");
-    const pipeSegs=pipelineAls.map(a=>`<div style="width:${pct(a.d,av)*bW/100}%;background:var(--pipeline);height:100%;background-image:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(255,255,255,0.4) 3px,rgba(255,255,255,0.4) 6px);" title="${a.d}d pipeline"></div>`).join("");
-    const fW=free>0?pct(free,av)*bW/100:0;
-    const fBar=fW>0?`<div style="width:${fW}%;background:var(--free-bar);height:100%;"></div>`:"";
+    const riskBadge=riskFlag?`<span class="pill p-risk" style="font-size:9px;">⚠️ exp</span>`:"";
+
+    // Bar: live + contracted + pipeline + leave (pink) + free
+    const bW=100;
+    const solidSegs=als.map(a=>`<div style="width:${pct(a.d,av)}%;background:${stCol(a.st)};height:100%;${a.st==="pipeline"?"background-image:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(255,255,255,0.4) 3px,rgba(255,255,255,0.4) 6px);":""}flex-shrink:0;" title="${projects.find(x=>x.id===a.pr)?.name||a.pr}: ${a.d}d ${a.st}"></div>`).join("");
+    const leaveW=pct(leaveD,AVAIL_DAYS);
+    const leaveSeg=leaveD>0?`<div style="width:${leaveW}%;background:var(--leave);height:100%;flex-shrink:0;" title="${leaveD}d leave"></div>`:"";
+    const freeW=pct(free,av);
+    const freeSeg=free>0?`<div style="width:${freeW}%;background:var(--free-bar);height:100%;flex-shrink:0;"></div>`:"";
 
     const allocRows=als.map(a=>{
-      const proj=projects.find(x=>x.id===a.pr);
+      const proj=projects.find(x=>x.id===a.pr)||{name:a.prName||a.pr};
       const loeDays=getLOE(a.pr,person.name);
       const diff=loeDays>0?a.d-loeDays:null;
       const gapText=loeDays>0?(diff===0?"✓ on budget":diff>0?`+${diff}d over`:`${diff}d under`):"no LOE";
       const gapCol=loeDays===0?"color:var(--text-3)":diff===0?"color:var(--clover)":Math.abs(diff)===1?"color:var(--naranja)":"color:var(--red)";
-      return`<tr><td style="display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:2px;background:${stCol(a.st)};flex-shrink:0;display:inline-block;"></span>${proj?proj.name:a.pr}${a.st==="pipeline"?" 🔮":""}</td><td>${sBadge(a.st)}</td><td style="text-align:right;font-weight:600;">${a.d}d</td><td style="font-size:10px;${gapCol}">${gapText}</td></tr>`;
+      return`<tr><td style="display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:${stCol(a.st)};flex-shrink:0;"></span>${proj.name}${a.st==="pipeline"?" 🔮":""}</td><td>${sBadge(a.st)}</td><td style="text-align:right;font-weight:600;">${a.d}d</td><td style="font-size:10px;${gapCol}">${gapText}</td></tr>`;
     }).join("");
-    const allocPanel=`<table class="dt"><thead><tr><th>Project</th><th>Status</th><th style="text-align:right">Days</th><th>vs LOE</th></tr></thead><tbody>${allocRows}${free>0?`<tr><td style="display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:2px;background:var(--free-bar);flex-shrink:0;display:inline-block;"></span>Free</td><td></td><td style="text-align:right;font-weight:600;color:var(--clover);">${free}d</td><td></td></tr>`:""}</tbody></table>`;
+    const allocPanel=`<table class="dt"><thead><tr><th>Project</th><th>Status</th><th style="text-align:right">Days</th><th>vs LOE</th></tr></thead><tbody>${allocRows}${leaveD>0?`<tr><td style="display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--leave);flex-shrink:0;"></span>Leave 🌴</td><td></td><td style="text-align:right;font-weight:600;color:var(--leave);">${leaveD}d</td><td></td></tr>`:""}${free>0?`<tr><td style="display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--free-bar);flex-shrink:0;"></span>Free</td><td></td><td style="text-align:right;font-weight:600;color:var(--clover);">${free}d</td><td></td></tr>`:""}</tbody></table>`;
 
-    const leaveCallout=leave>0?`<div class="callout" style="background:#E8F4E8;color:#1A5C48;border-left:3px solid var(--clover);">🌴 ${leave}d leave this month — available days: ${av}d.</div>`:"";
-    const tgtCallout=bill>=tgt?`<div class="callout co-g">🟢 Meeting L${person.level} target (${tPct}% = ${tgt}d).</div>`:`<div class="callout co-a">💚 ${tgt-bill}d below L${person.level} target (${tPct}% of ${av}d = ${tgt}d).</div>`;
-    const riskCallout=riskFlag?`<div class="callout co-risk">⚠️ ${CT_LABELS[person.contractType]}${person.contractEnd?" — ends "+person.contractEnd:""}.</div>`:"";
-    const contractPanel=`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;"><span style="font-size:11px;color:var(--text-2);">${countryFlag(person.country)} ${person.country}</span><span style="color:var(--text-3);">|</span>${contractBadge(person)}</div>
+    const leaveCallout=leaveD>0?`<div class="callout" style="background:#FDE8E6;color:#8A3020;border-left:3px solid var(--leave);">🌴 ${leaveD}d leave — available days reduced to ${av}d.</div>`:"";
+    const tgtCallout=bill>=tgt?`<div class="callout co-g">🟢 On target (${tPct2}% = ${tgt}d).</div>`:`<div class="callout co-a">💚 ${tgt-bill}d below target (${tPct2}% of ${av}d).</div>`;
+    const riskCallout=riskFlag?`<div class="callout co-risk">⚠️ ${CT_LABELS[person.contractType]} ends ${person.contractEnd}.</div>`:"";
+    const contractPanel=`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">${countryFlag(person.country)} <span style="font-size:11px;">${person.country}</span>${contractBadge(person)}</div>
     <div class="fte-grid">
       <div class="ftem"><div class="ftem-l">Billable days</div><div class="ftem-v cg">${bill}d</div></div>
-      <div class="ftem"><div class="ftem-l">Target (L${person.level}, ${tPct}%)</div><div class="ftem-v">${tgt}d of ${av}d</div></div>
-      <div class="ftem"><div class="ftem-l">Available days</div><div class="ftem-v">${av}d${leave>0?` <span style="color:var(--clover);font-size:10px;">(−${leave}d 🌴)</span>`:""}</div></div>
+      <div class="ftem"><div class="ftem-l">Target (L${person.level}, ${tPct2}%)</div><div class="ftem-v">${tgt}d of ${av}d</div></div>
+      <div class="ftem"><div class="ftem-l">Available${leaveD>0?" (after leave)":""}</div><div class="ftem-v">${av}d${leaveD>0?` <span style="color:var(--leave);font-size:10px;">−${leaveD}d 🌴</span>`:""}</div></div>
       <div class="ftem"><div class="ftem-l">Free days</div><div class="ftem-v ${free>0?"cg":"ca"}">${free}d</div></div>
-    </div>
-    ${leaveCallout}${tgtCallout}${riskCallout}`;
+    </div>${leaveCallout}${tgtCallout}${riskCallout}`;
 
     return`<div class="pgcard ${cardStatus}" onclick="togglePerson(${person.id})">
   <div class="pgcard-head">
     <div class="pgcard-av" style="background:${person.col};color:${person.tc}">${person.initials}</div>
     <div class="pgcard-info">
-      <div class="pgcard-name">${person.name} ${pBadge}${riskBadge}${leaveBadge}</div>
+      <div class="pgcard-name">${person.name} ${pBadge}${riskBadge}${leaveD>0?"🌴":""}</div>
       <div class="pgcard-role">${titleOf(person)} · L${person.level} · ${countryFlag(person.country)}</div>
     </div>
     <div class="pgcard-meta">
       <div style="text-align:right;">
         <div style="font-family:var(--fh);font-size:18px;font-weight:600;color:${isOver?"var(--red)":bill>=tgt?"var(--clover)":"var(--naranja)"};">${bill}d</div>
-        <div style="font-size:9px;color:var(--text-3);">${free>0?free+"d free":"full"}</div>
+        <div style="font-size:9px;color:var(--text-3);">${free>0?free+"d free":leaveD>0?"on leave":"full"}</div>
       </div>
-      ${capPill(total,av)}
       <span style="font-size:12px;color:var(--text-3);">${isExp?"▲":"▼"}</span>
     </div>
   </div>
   <div class="pgcard-bar">
-    <div class="pgcard-bar-fill">${segs}${pipeSegs}${fBar}</div>
-    <div class="pgcard-bar-target" style="left:${tPct*bW/100}%;"></div>
+    <div class="pgcard-bar-fill" style="display:flex;height:100%;">${solidSegs}${leaveSeg}${freeSeg}</div>
+    <div class="pgcard-bar-target" style="left:${tPct2}%;"></div>
   </div>
-  <div class="pgcard-stats"><span>${bill}/${av}d · target ${tPct}%</span><span>${leave>0?"🌴 "+leave+"d leave":""}</span></div>
+  <div class="pgcard-stats"><span>${bill}/${av}d · target ${tPct2}%</span><span style="color:var(--leave);">${leaveD>0?"🌴 "+leaveD+"d leave":""}</span></div>
   <div class="pgcard-expand ${isExp?"open":""}">
     <div class="pd-tabs" onclick="event.stopPropagation()">
       <button class="pd-tab ${panel==="alloc"?"active":""}" onclick="switchPanel(${person.id},'alloc')">📋 Allocation</button>
@@ -677,76 +843,114 @@ function renderPeople(){
 </div>`;
   }).join("");
 
-  document.getElementById("view").innerHTML=filterBar+`<div class="card-grid">${cards||"<div style='padding:20px;text-align:center;color:var(--text-3);'>No people match filters.</div>"}</div>`;
+  document.getElementById("view").innerHTML=legend+filterBar+`<div class="card-grid">${cards||"<div style='padding:20px;text-align:center;color:var(--text-3);'>No people match filters.</div>"}</div>`;
 }
 
 function renderPeopleMulti(wm){
   let dp=sortedPeople().filter(p=>!contractExpiredByMonth(p,wm[0].m,wm[0].y));
   if(filterProjects.size>0){const onP=new Set(wm.flatMap(({m,y})=>mdata(m,y).filter(a=>filterProjects.has(a.pr)).map(a=>a.p)));dp=dp.filter(p=>onP.has(p.id));}
   if(filterPillar)dp=dp.filter(p=>p.pillar===filterPillar||p.pillar==="F&P+IL");
-  const thCols=wm.map(({label})=>`<th style="text-align:right;min-width:90px;">${label}</th>`).join("");
-  const rows=dp.map(p=>{
-    const cols=wm.map(({m,y})=>{
-      if(contractExpiredByMonth(p,m,y))return`<td style="text-align:right;color:var(--text-3);font-size:10px;">—</td>`;
-      const av=avail(p,m,y),bill=billAlloc(p.id,m,y),tgt=targetDays(p,m,y),tot=totalAlloc(p.id,m,y),leave=leaveDays(p,m,y);
-      const col=tot>av?"var(--red)":bill>=tgt?"var(--clover)":"var(--naranja)";
-      return`<td style="text-align:right;font-weight:600;color:${col};">${bill}d${leave>0?" 🌴":""}</td>`;
+
+  // Sparkline cards
+  const cards=dp.map(person=>{
+    const monthData=wm.map(({m,y})=>{
+      if(contractExpiredByMonth(person,m,y))return null;
+      const av=avail(person,m,y),bill=billAlloc(person.id,m,y),tgt=targetDays(person,m,y),leaveD=leaveDays(person,m,y);
+      const free=Math.max(0,av-totalAlloc(person.id,m,y));
+      return{av,bill,tgt,leaveD,free,pct:pct(bill,av)};
+    });
+    const validData=monthData.filter(Boolean);
+    const avgPct=validData.length?Math.round(validData.reduce((s,d)=>s+d.pct,0)/validData.length):0;
+    const tgtPct=Math.round(LT[person.level]*100);
+    const col=avgPct>=tgtPct?"var(--clover)":avgPct>=tgtPct*0.85?"var(--naranja)":"var(--red)";
+
+    // SVG sparkline
+    const barW=Math.max(8,Math.floor(160/wm.length)-2);
+    const maxH=40;
+    const bars=monthData.map((d,i)=>{
+      if(!d)return`<rect x="${i*(barW+2)}" y="0" width="${barW}" height="${maxH}" fill="var(--pebble)" rx="2"/>`;
+      const bH=Math.max(2,Math.round((d.bill/d.av)*maxH));
+      const lH=Math.round((d.leaveD/AVAIL_DAYS)*maxH);
+      const fH=Math.max(1,Math.round((d.free/d.av)*maxH));
+      const tgtX=i*(barW+2)+barW/2;
+      const tgtY=maxH-Math.round((d.tgt/d.av)*maxH);
+      const barCol=d.bill>=d.tgt?"#287F66":d.bill>0?"#FFA31D":"#E0DCE0";
+      return`<rect x="${i*(barW+2)}" y="${maxH-bH}" width="${barW}" height="${bH}" fill="${barCol}" rx="2"/>
+        ${lH>0?`<rect x="${i*(barW+2)}" y="${maxH-bH-lH}" width="${barW}" height="${lH}" fill="var(--leave)" rx="1"/>`:""}
+        <line x1="${tgtX}" y1="${tgtY-1}" x2="${tgtX}" y2="${tgtY+3}" stroke="var(--plum)" stroke-width="1.5"/>`;
     }).join("");
-    const _pillars=p.pillar==="F&P+IL"?["F&P","IL"]:[p.pillar];
-    const pBadge=_pillars.map(pl=>`<span class="pill ${pl==="IL"?"p-teal":"p-pl"}" style="font-size:8px;">${pl==="F&P"?"F&amp;P":pl}</span>`).join(" ");
-    return`<tr><td style="display:flex;align-items:center;gap:6px;padding:6px;"><div class="pgcard-av" style="background:${p.col};color:${p.tc};width:24px;height:24px;font-size:8px;">${p.initials}</div>${p.name} ${pBadge}</td>${cols}</tr>`;
+    const monthLabels=wm.map(({label},i)=>`<text x="${i*(barW+2)+barW/2}" y="52" text-anchor="middle" font-size="8" fill="#8A7A8E">${label.slice(0,3)}</text>`).join("");
+    const svg=`<svg viewBox="0 0 ${wm.length*(barW+2)} 56" style="width:100%;height:56px;">${bars}${monthLabels}</svg>`;
+
+    const _pillars=person.pillar==="F&P+IL"?["F&P","IL"]:[person.pillar];
+    const pBadge=_pillars.map(p=>`<span class="pill ${p==="IL"?"p-teal":"p-pl"}" style="font-size:8px;">${p==="F&P"?"F&amp;P":p}</span>`).join(" ");
+
+    return`<div class="spark-card">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
+        <div class="pgcard-av" style="background:${person.col};color:${person.tc};width:26px;height:26px;font-size:8px;flex-shrink:0;">${person.initials}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:var(--fh);font-size:13px;font-weight:600;color:var(--plum);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${person.name} ${pBadge}</div>
+          <div style="font-size:10px;color:var(--text-3);">${titleOf(person)} · L${person.level}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:var(--fh);font-size:16px;font-weight:600;color:${col};">${avgPct}%</div>
+          <div style="font-size:9px;color:var(--text-3);">avg billable</div>
+        </div>
+      </div>
+      ${svg}
+    </div>`;
   }).join("");
-  return`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:auto;"><table class="dt"><thead><tr><th>Person</th>${thCols}</tr></thead><tbody>${rows}</tbody></table></div>`;
+
+  return`<div class="sparkline-grid">${cards||"<div style='padding:20px;text-align:center;color:var(--text-3);'>No people match filters.</div>"}</div>`;
 }
 
 // ── PROJECTS ──
 function renderProjects(){
+  const legend=`<div class="tab-legend">
+    <span class="filter-label">Key:</span>
+    <div class="legend-item"><span style="width:10px;height:10px;border-radius:2px;background:var(--border-strong);display:inline-block;opacity:0.4;"></span>LOE budget</div>
+    <div class="legend-item"><span style="width:10px;height:10px;border-radius:2px;background:var(--clover);display:inline-block;"></span>On budget</div>
+    <div class="legend-item"><span style="width:10px;height:10px;border-radius:2px;background:var(--naranja);display:inline-block;"></span>1–3d off</div>
+    <div class="legend-item"><span style="width:10px;height:10px;border-radius:2px;background:var(--red);display:inline-block;"></span>4d+ off</div>
+    <div class="legend-item"><span style="width:3px;height:12px;background:var(--red);display:inline-block;border-radius:1px;"></span>Over LOE</div>
+    <div style="font-size:10px;color:var(--text-3);font-style:italic;margin-left:auto;">Does not reconcile vs budget</div>
+  </div>`;
+
+  if(winSize>1){document.getElementById("view").innerHTML=legend+renderProjectsMulti(windowMonths());return;}
+
   const _allClients=[...new Set(projects.filter(p=>p.id!=="INT"&&p.client).map(p=>p.client))].sort();
   const _actPpl=people.filter(p=>!contractExpiredByMonth(p,curMonth,curYear));
   const clientBtns=_allClients.map(c=>`<button class="sort-btn ${filterClients.has(c)?"active":""}" style="font-size:10px;padding:2px 8px;margin:1px;" onclick="toggleFilterClient('${c}')">${c}</button>`).join("");
   const personBtns=_actPpl.map(p=>`<button class="sort-btn ${filterPersons.has(p.id)?"active":""}" style="font-size:10px;padding:2px 8px;margin:1px;" onclick="toggleFilterPerson(${p.id})">${firstName(p.name)}</button>`).join("");
   const filterBar=`<div class="filter-bar">
-    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
-      <span class="filter-label">Client:</span>${clientBtns}
-      ${filterClients.size>0?`<button class="sort-btn" onclick="clearFilterClients()" style="color:var(--red);">✕ clear</button>`:""}
-    </div>
-    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-      <span class="filter-label">Person:</span>${personBtns}
-      ${filterPersons.size>0?`<button class="sort-btn" onclick="clearFilterPersons()" style="color:var(--red);">✕ clear</button>`:""}
-    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span class="filter-label">Client:</span>${clientBtns}${filterClients.size>0?`<button class="sort-btn" onclick="clearFilterClients()" style="color:var(--red);">✕</button>`:""}</div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span class="filter-label">Person:</span>${personBtns}${filterPersons.size>0?`<button class="sort-btn" onclick="clearFilterPersons()" style="color:var(--red);">✕</button>`:""}</div>
   </div>`;
 
   const wm=windowMonths();
   const html2=projects.filter(p=>p.id!=="INT").map(proj=>{
-    let pA=wm.flatMap(({m,y})=>mdata(m,y).filter(a=>a.pr===proj.id));
+    let pA=mdata(curMonth,curYear).filter(a=>a.pr===proj.id);
     if(filterPersons.size>0)pA=pA.filter(a=>filterPersons.has(a.p));
     if(filterClients.size>0&&!filterClients.has(proj.client))return"";
     if(!pA.length&&(filterPersons.size>0||filterClients.size>0))return"";
     const days=pA.reduce((s,a)=>s+a.d,0);
     const isOpen=expanded.has("proj-"+proj.id);
-    const mvId=proj.id,isMvOpen=mvOpen.has(mvId);
-
-    // Aggregate LOE
     let loeTot=0;
     const personLoeMap={},personAllocMap={};
-    wm.forEach(({m,y})=>{
-      const projLoe=loe[proj.id]||{};
-      Object.entries(projLoe).forEach(([pName,byMonth])=>{const mk=mkey(m,y);const d=byMonth[mk]||0;loeTot+=d;personLoeMap[pName]=(personLoeMap[pName]||0)+d;});
-    });
+    const projLoe=loe[proj.id]||{};
+    Object.entries(projLoe).forEach(([pName,byMonth])=>{const d=byMonth[mkey(curMonth,curYear)]||0;loeTot+=d;personLoeMap[pName]=(personLoeMap[pName]||0)+d;});
     pA.forEach(a=>{const per=people.find(x=>x.id===a.p);if(!per)return;personAllocMap[per.name]=(personAllocMap[per.name]||0)+a.d;});
     const hasLOE=loeTot>0;
     const maxD2=Math.max(loeTot,days,1);
     const diff=days-loeTot;
-    const barCol=hasLOE?(diff===0?"var(--clover)":Math.abs(diff)<=2?"var(--naranja)":"var(--red)"):"var(--live)";
+    const barCol=hasLOE?(Math.abs(diff)<=1?"var(--clover)":Math.abs(diff)<=3?"var(--naranja)":"var(--red)"):"var(--border-strong)";
 
-    // LOE per-person rows
     const loeRows=Object.keys({...personLoeMap,...personAllocMap}).map(pName=>{
       const loeDays=personLoeMap[pName]||0,allocDays=personAllocMap[pName]||0;
       const diff2=allocDays-loeDays,maxD3=Math.max(loeDays,allocDays,1);
       const actualColor=loeDays===0?"var(--red)":diff2===0?"var(--clover)":Math.abs(diff2)<=1?"var(--naranja)":"var(--red)";
       const gapText=loeDays===0?"no LOE":diff2===0?"✓ on budget":diff2>0?`+${diff2}d over`:`${diff2}d under`;
       const gapCol=loeDays===0?"color:var(--red)":diff2===0?"color:var(--clover)":Math.abs(diff2)<=1?"color:var(--naranja)":"color:var(--red)";
-      const overflowPct=allocDays>loeDays&&loeDays>0?pct(loeDays,maxD3):0;
       return`<div class="proj-loe-row">
         <div class="proj-loe-name">${firstName(pName)}</div>
         <div class="proj-loe-track">
@@ -758,7 +962,6 @@ function renderProjects(){
       </div>`;
     }).join("");
 
-    // Clickable people chips
     const clickablePeople=Object.keys({...personLoeMap,...personAllocMap}).map(pName=>{
       const per=people.find(x=>x.name===pName);if(!per)return'';
       const allocD=personAllocMap[pName]||0,loeD=personLoeMap[pName]||0,diff3=allocD-loeD;
@@ -766,41 +969,79 @@ function renderProjects(){
     }).join('');
 
     const lTag=proj.lift?`<span class="tag t-l${proj.lift==="high"?"h":proj.lift==="medium"?"m":"l"}">${proj.lift} lift</span>`:"";
-    const endTag=proj.endDate?`<span style="font-size:10px;color:var(--text-3);">⏳ ends ${proj.endDate}</span>`:"";
-    const statusIcon={live:"▶️",contracted:"📋",pipeline:"🔮",internal:"🏠"}[proj.status]||"";
+    const endTag=proj.endDate?`<span style="font-size:10px;color:var(--text-3);">⏳ ${proj.endDate}</span>`:"";
+    const statusIcon={live:"▶️",contracted:"📋",pipeline:"🔮"}[proj.status]||"";
 
     return`<div class="pjgcard" onclick="toggleProjExpand('proj-${proj.id}')">
   <div class="pjgcard-head">
-    <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:6px;">
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px;">
       <span>${statusIcon}</span>
       <span style="font-family:var(--fh);font-weight:600;font-size:15px;color:var(--plum);">${proj.name}</span>
       ${sBadge(proj.status)}${lTag}
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
       <div style="font-size:11px;color:var(--text-3);">${proj.client} ${endTag}</div>
-      <div style="text-align:right;flex-shrink:0;">
+      <div style="text-align:right;">
         <div style="font-family:var(--fh);font-size:18px;font-weight:600;color:var(--plum);">${days}d</div>
         ${hasLOE?`<div style="font-size:10px;color:var(--text-3);">LOE: ${loeTot}d</div>`:""}
       </div>
     </div>
-    <div style="height:8px;background:var(--pebble);border-radius:3px;overflow:hidden;position:relative;margin-bottom:4px;">
-      ${hasLOE?`<div style="position:absolute;top:0;left:0;width:${pct(loeTot,maxD2)}%;height:100%;background:var(--border-strong);border-radius:3px;opacity:0.4;"></div>`:""}
-      <div style="position:absolute;top:0;left:0;width:${Math.min(100,pct(days,maxD2))}%;height:100%;background:${barCol};border-radius:3px;opacity:0.85;"></div>
+    <div style="height:7px;background:var(--pebble);border-radius:3px;overflow:hidden;position:relative;margin-bottom:3px;">
+      ${hasLOE?`<div style="position:absolute;top:0;left:0;width:${pct(loeTot,maxD2)}%;height:100%;background:var(--border-strong);opacity:0.4;"></div>`:""}
+      <div style="position:absolute;top:0;left:0;width:${Math.min(100,pct(days,maxD2))}%;height:100%;background:${barCol};opacity:0.85;"></div>
     </div>
-    ${hasLOE?`<div style="font-size:10px;color:${barCol};font-weight:600;">${days}d allocated / ${loeTot}d LOE${diff>0?" · +"+diff+"d over":diff<0?" · "+diff+"d under":" · on budget"}</div>`:`<div style="font-size:10px;color:var(--text-3);">${days}d allocated · no LOE budget</div>`}
+    ${hasLOE?`<div style="font-size:10px;color:${barCol};font-weight:500;">${days}d / ${loeTot}d LOE${diff>0?" · +"+diff+"d over":diff<0?" · "+diff+"d under":" · on budget"}</div>`:`<div style="font-size:10px;color:var(--text-3);">${days}d · no LOE</div>`}
   </div>
   <div class="pjgcard-expand ${isOpen?"open":""}" onclick="event.stopPropagation()">
-    ${hasLOE||Object.keys(personAllocMap).length>0?`
-      <div style="margin-bottom:8px;"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-3);">Team · click to see allocation</span><br><div style="margin-top:4px;">${clickablePeople}</div></div>
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-3);margin-bottom:6px;">LOE vs allocated${winSize>1?" ("+winSize+"-month aggregate)":""}</div>
-      ${loeRows}`:
-      `<div style="font-size:11px;color:var(--text-3);padding:8px 0;">No LOE budget data for this project yet.</div>`}
-    <div style="font-size:10px;color:var(--text-3);font-style:italic;margin-top:8px;padding:5px 8px;background:var(--pebble);border-radius:var(--rsm);">ℹ️ Grey bar = LOE budget. Red marker = over budget. Tracker only.</div>
+    ${Object.keys({...personLoeMap,...personAllocMap}).length>0?`
+      <div style="margin-bottom:8px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-3);margin-bottom:4px;">Team — click to see allocation 🍩</div>${clickablePeople}</div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-3);margin-bottom:6px;">LOE vs allocated</div>${loeRows}`
+      :`<div style="font-size:11px;color:var(--text-3);">No budget data yet.</div>`}
   </div>
 </div>`;
   }).filter(Boolean).join("");
 
-  document.getElementById("view").innerHTML=filterBar+`<div class="pjcard-grid">${html2||"<div style='padding:20px;text-align:center;color:var(--text-3);'>No projects match filter.</div>"}</div>`;
+  document.getElementById("view").innerHTML=legend+filterBar+`<div class="pjcard-grid">${html2||"<div style='padding:20px;text-align:center;color:var(--text-3);'>No projects match filter.</div>"}</div>`;
+}
+
+function renderProjectsMulti(wm){
+  const visProjects=projects.filter(p=>p.id!=="INT").filter(proj=>{
+    return wm.some(({m,y})=>mdata(m,y).some(a=>a.pr===proj.id));
+  });
+  const thCols=wm.map(({label})=>`<th style="text-align:center;min-width:90px;white-space:nowrap;">${label}</th>`).join("");
+  const rows=visProjects.map(proj=>{
+    const statusIcon={live:"▶️",contracted:"📋",pipeline:"🔮"}[proj.status]||"";
+    const cols=wm.map(({m,y})=>{
+      const pA=mdata(m,y).filter(a=>a.pr===proj.id);
+      const days=pA.reduce((s,a)=>s+a.d,0);
+      if(!days)return`<td style="text-align:center;color:var(--text-3);font-size:10px;">—</td>`;
+      const projLoe=loe[proj.id]||{};
+      let loeDays=0;Object.values(projLoe).forEach(bm=>{loeDays+=(bm[mkey(m,y)]||0);});
+      const diff=days-loeDays;
+      const col=loeDays===0?"var(--plum)":Math.abs(diff)<=1?"var(--clover)":Math.abs(diff)<=3?"var(--naranja)":"var(--red)";
+      const bg=loeDays===0?"var(--chalk)":Math.abs(diff)<=1?"#E6F4F0":Math.abs(diff)<=3?"#FEF3E2":"#FDE8E6";
+      const diffStr=loeDays===0?"":diff===0?" ✓":diff>0?` +${diff}`:` ${diff}`;
+      return`<td style="text-align:center;background:${bg};border-radius:4px;padding:4px 6px;">
+        <div style="font-weight:600;font-size:11px;color:${col};">${days}d${diffStr}</div>
+        ${loeDays>0?`<div style="font-size:9px;color:var(--text-3);">LOE ${loeDays}d</div>`:""}
+      </td>`;
+    }).join("");
+    return`<tr><td style="padding:6px 8px;white-space:nowrap;font-size:11px;">
+      <div style="display:flex;align-items:center;gap:5px;">
+        <span>${statusIcon}</span>
+        <span style="font-weight:500;color:var(--plum);">${proj.name}</span>
+      </div>
+      <div style="font-size:10px;color:var(--text-3);">${proj.client}</div>
+    </td>${cols}</tr>`;
+  }).join("");
+
+  return`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:auto;">
+    <table class="proj-matrix">
+      <thead><tr><th style="min-width:160px;">Project</th>${thCols}</tr></thead>
+      <tbody>${rows||"<tr><td colspan='99' style='padding:20px;text-align:center;color:var(--text-3);'>No project data for this window.</td></tr>"}</tbody>
+    </table>
+    <div style="padding:8px 12px;font-size:10px;color:var(--text-3);font-style:italic;border-top:1px solid var(--border);">🟢 on LOE budget · 🟡 1-3d off · 🔴 4d+ off · Grey = no LOE data. Does not reconcile vs budget.</div>
+  </div>`;
 }
 
 // ── SKILLS ──
@@ -813,22 +1054,29 @@ function renderSkills(){
   const ssGroups=[...new Set(SS.map(s=>s.g))];
   const ssBtns=ssGroups.map(g=>{const items=SS.filter(s=>s.g===g);return`<div class="ssg"><div class="ssg-l">${g}</div><div>${items.map(s=>`<button class="sschip ${sf.ss.has(s.id)?"active":""}" onclick="toggleSS('${s.id}')">${s.l}</button>`).join("")}</div></div>`;}).join("");
   let dp=sortedPeople().filter(p=>!contractExpiredByMonth(p,curMonth,curYear));
-  if(hasFilters){dp=dp.filter(person=>{const themeMatch=[...sf.themes].every(t=>(person.themes||{})[t]>=sf.minScore);const ssMatch=[...sf.ss].every(id=>(person.skills||{})[id]>=sf.minScore);return themeMatch&&ssMatch;});}
+  if(hasFilters){dp=dp.filter(person=>{
+    const themeMatch=[...sf.themes].every(t=>(person.themes||{})[t]>=1);
+    const ssMatch=[...sf.ss].every(id=>(person.skills||{})[id]>=1);
+    return themeMatch&&ssMatch;
+  });}
   const resultsHTML=dp.map(person=>{
-    const matchedThemes=[...sf.themes].filter(t=>(person.themes||{})[t]>=sf.minScore);
-    const matchedSS=[...sf.ss].filter(id=>(person.skills||{})[id]>=sf.minScore);
-    const av=avail(person),tot=totalAlloc(person.id),free=Math.max(0,av-tot),leave=leaveDays(person,curMonth,curYear);
-    const scoreDisplay=[...matchedThemes.map(t=>`<span style="font-size:10px;padding:2px 7px;border-radius:99px;background:var(--chalk);color:var(--text-2);">🏷️ ${t} ${"⭐".repeat((person.themes||{})[t]||0)}</span>`),...matchedSS.map(id=>{const s=SS.find(x=>x.id===id);return s?`<span style="font-size:10px;padding:2px 7px;border-radius:99px;background:var(--chalk);color:var(--text-2);">🎯 ${s.l} ${"⭐".repeat((person.skills||{})[id]||0)}</span>`:""})].join(" ");
+    const matchedThemes=[...sf.themes].filter(t=>(person.themes||{})[t]>=1);
+    const matchedSS=[...sf.ss].filter(id=>(person.skills||{})[id]>=1);
+    const av=avail(person),tot=totalAlloc(person.id),free=Math.max(0,av-tot),leaveD=leaveDays(person,curMonth,curYear);
+    const scoreDisplay=[
+      ...matchedThemes.map(t=>`<span style="font-size:10px;padding:2px 7px;border-radius:99px;background:var(--chalk);color:var(--text-2);">🏷️ ${t} ${"⭐".repeat((person.themes||{})[t]||0)}</span>`),
+      ...matchedSS.map(id=>{const s=SS.find(x=>x.id===id);return s?`<span style="font-size:10px;padding:2px 7px;border-radius:99px;background:var(--chalk);color:var(--text-2);">🎯 ${s.l} ${"⭐".repeat((person.skills||{})[id]||0)}</span>`:""})
+    ].join(" ");
     return`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:10px;">
       <div class="pgcard-av" style="background:${person.col};color:${person.tc};flex-shrink:0;">${person.initials}</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-family:var(--fh);font-size:14px;font-weight:600;color:var(--plum);">${person.name}${leave>0?" 🌴":""}</div>
+        <div style="font-family:var(--fh);font-size:14px;font-weight:600;color:var(--plum);">${person.name}${leaveD>0?" 🌴":""}</div>
         <div style="font-size:10px;color:var(--text-3);">${titleOf(person)} · L${person.level}</div>
         <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:3px;">${scoreDisplay}</div>
       </div>
       <div style="text-align:right;flex-shrink:0;">
         <div style="font-size:13px;font-weight:600;color:${free>3?"var(--clover)":free>0?"var(--naranja)":"var(--red)"};">${free}d free</div>
-        <div class="avail-bar" style="width:80px;"><div class="avail-fill" style="width:${100-pct(free,av)}%;background:${free>3?"var(--clover)":free>0?"var(--naranja)":"var(--red)"};"></div></div>
+        <div class="avail-bar" style="width:80px;"><div class="avail-fill" style="width:${100-pct(free,Math.max(av,1))}%;background:${free>3?"var(--clover)":free>0?"var(--naranja)":"var(--red)"};"></div></div>
       </div>
     </div>`;
   }).join("");
@@ -836,8 +1084,8 @@ function renderSkills(){
     <div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-3);margin-bottom:8px;">🏷️ Themes</div>${themeButtons}</div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-3);margin-bottom:8px;">🎯 Sub-services</div>${ssBtns}</div>
-      <div style="margin-top:8px;font-size:11px;color:var(--text-3);">Min score: <strong>⭐⭐</strong> (capable).</div>
-      ${hasFilters?`<button onclick="clearFilters()" class="sort-btn" style="margin-top:8px;color:var(--red);">✕ Clear all filters</button>`:""}
+      <div style="margin-top:8px;font-size:11px;color:var(--text-3);">⭐ = interested · ⭐⭐ = capable · ⭐⭐⭐ = expert</div>
+      ${hasFilters?`<button onclick="clearFilters()" class="sort-btn" style="margin-top:8px;color:var(--red);">✕ Clear all</button>`:""}
     </div>
     <div>
       <div style="font-size:11px;color:var(--text-3);margin-bottom:8px;">${hasFilters?`${dp.length} people match`:"Select themes or sub-services to filter"} ${tags}${ssTags}</div>
@@ -846,8 +1094,8 @@ function renderSkills(){
   </div>`;
 }
 
-// ── AI CHAT ──
-const AI_SUGGESTIONS=["Who has free capacity this month?","What are our contract risks?","Who can lead on blended finance?","Which projects are under their LOE budget?","Who has climate expertise and is available?"];
+// ── AI ──
+const AI_SUGGESTIONS=["Who has free capacity this month?","What are our contract risks?","Who can lead on blended finance?","Which projects are under LOE budget?","Who has climate expertise and is available?"];
 function renderAISuggs(){const el=document.getElementById('ai-suggs');if(!el)return;el.innerHTML=aiMessages.length===0?AI_SUGGESTIONS.map(s=>`<button onclick="sendAI('${s.replace(/'/g,"\\'")}') " style="padding:3px 9px;border:1px solid var(--border-strong);border-radius:99px;font-size:10px;background:transparent;cursor:pointer;color:var(--text-2);font-family:var(--fb);">${s}</button>`).join(""):"";}
 function appendAIMsg(role,content){const el=document.getElementById('ai-msgs');if(!el)return;if(aiMessages.length===1&&role==='user')el.innerHTML="";const div=document.createElement('div');div.style.cssText=`max-width:85%;padding:8px 11px;border-radius:${role==='user'?'10px 10px 3px 10px':'3px 10px 10px 10px'};font-size:12px;line-height:1.5;align-self:${role==='user'?'flex-end':'flex-start'};background:${role==='user'?'var(--plum)':'var(--chalk)'};color:${role==='user'?'white':'var(--text)'};`;div.innerHTML=content.replace(/\n/g,'<br>');el.appendChild(div);el.scrollTop=el.scrollHeight;}
 async function sendAI(prefill){
@@ -856,20 +1104,20 @@ async function sendAI(prefill){
   input.value='';aiLoading=true;if(btn)btn.disabled=true;
   aiMessages.push({role:'user',content:text});appendAIMsg('user',text);renderAISuggs();
   const teamCtx=people.map(p=>{
-    const av=avail(p),bill=billAlloc(p.id),tgt=targetDays(p),free=Math.max(0,av-totalAlloc(p.id)),leave=leaveDays(p,curMonth,curYear);
-    const als=pa(p.id).map(a=>{const proj=projects.find(x=>x.id===a.pr);return(proj?proj.name:a.pr)+':'+a.d+'d('+a.st+')';}).join(', ');
+    const av=avail(p),bill=billAlloc(p.id),tgt=targetDays(p),free=Math.max(0,av-totalAlloc(p.id)),leaveD=leaveDays(p,curMonth,curYear);
+    const als=pa(p.id).map(a=>{const proj=projects.find(x=>x.id===a.pr);return(proj?proj.name:(a.prName||a.pr))+':'+a.d+'d('+a.st+')';}).join(', ');
     const topSkills=Object.entries(p.skills||{}).filter(([k,v])=>v>=3).map(([k])=>{const s=SS.find(x=>x.id===k);return s?s.l:null;}).filter(Boolean).join(', ');
     const topThemes=Object.entries(p.themes||{}).filter(([k,v])=>v>=3).map(([k])=>k).join(', ');
-    return p.name+' (L'+p.level+', '+p.pillar+', '+p.contractType+(p.contractEnd?' ends '+p.contractEnd:'')+(leave>0?', '+leave+'d leave':'')+'): '+bill+'/'+av+'d billable, '+free+'d free, target '+tgt+'d. '+als+(topSkills?'. Strong: '+topSkills:'')+(topThemes?'. Themes: '+topThemes:'')+'.';
+    return`${p.name} (L${p.level}, ${p.pillar}${leaveD>0?', '+leaveD+'d leave':''}): ${bill}/${av}d billable, ${free}d free. ${als}${topSkills?'. Strong: '+topSkills:''}${topThemes?'. Themes: '+topThemes:''}.`;
   }).join('\n');
-  const context='=== CARIBOU RESOURCE PLANNER — '+MONTHS[curMonth]+' '+curYear+' ===\n19d/month base. Leave reduces availability. Targets: L5=80%, L4=80%, L3=90%, L2=95%.\n\nTEAM:\n'+teamCtx;
-  const typingId='ai-t-'+Date.now();
-  const typingDiv=document.createElement('div');typingDiv.id=typingId;typingDiv.style.cssText='padding:8px 11px;border-radius:3px 10px 10px 10px;font-size:12px;background:var(--chalk);color:var(--text-3);align-self:flex-start;';typingDiv.textContent='Thinking...';
-  const msgsEl=document.getElementById('ai-msgs');if(msgsEl){msgsEl.appendChild(typingDiv);msgsEl.scrollTop=msgsEl.scrollHeight;}
+  const context=`=== CARIBOU RESOURCE PLANNER — ${MONTHS[curMonth]} ${curYear} ===\nTargets: L5=80%, L4=80%, L3=90%, L2=95%. 19d/month base.\n\nTEAM:\n${teamCtx}`;
+  const typingId='t-'+Date.now();
+  const td=document.createElement('div');td.id=typingId;td.style.cssText='padding:8px 11px;border-radius:3px 10px 10px 10px;font-size:12px;background:var(--chalk);color:var(--text-3);align-self:flex-start;';td.textContent='Thinking...';
+  const msgsEl=document.getElementById('ai-msgs');if(msgsEl){msgsEl.appendChild(td);msgsEl.scrollTop=msgsEl.scrollHeight;}
   try{
     const res=await fetch(NETLIFY_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:aiMessages.map(m=>({role:m.role,content:m.content})),context})});
-    const data=await res.json();const reply=data.reply||'No response.';
-    document.getElementById(typingId)?.remove();aiMessages.push({role:'assistant',content:reply});appendAIMsg('assistant',reply);
+    const data=await res.json();document.getElementById(typingId)?.remove();
+    const reply=data.reply||'No response.';aiMessages.push({role:'assistant',content:reply});appendAIMsg('assistant',reply);
   }catch(e){document.getElementById(typingId)?.remove();appendAIMsg('assistant','Connection error.');}
   aiLoading=false;if(btn)btn.disabled=false;
 }
@@ -877,8 +1125,7 @@ async function sendAI(prefill){
 // ── RENDER ──
 function render(){
   document.getElementById("mon-label").textContent=MONTHS[curMonth]+" "+curYear;
-  const hints={overview:"Click the alerts panel to expand · toggle months to aggregate",people:"Click a person to expand · filter by project, pillar or status",projects:"Filter by client or person · click a project to expand · click a name chip to see their allocation",skills:"🎯 Select themes or sub-services to filter the team"};
-  document.getElementById("view-hint").innerHTML=hints[curView]||"";
+  renderAlerts();
   if(curView==="overview")renderOverview();
   else if(curView==="people")renderPeople();
   else if(curView==="projects")renderProjects();
@@ -890,7 +1137,7 @@ function render(){
   const overlay=document.getElementById('loading-overlay'),status=document.getElementById('loading-status');
   status.textContent='Fetching from Notion...';
   const ok=await loadNotionData();
-  if(ok){status.textContent='Data loaded ✓';}else{status.textContent='Using cached data (Notion unavailable)';await new Promise(r=>setTimeout(r,800));}
+  if(!ok){status.textContent='Using cached data (Notion unavailable)';await new Promise(r=>setTimeout(r,800));}
   overlay.style.opacity='0';overlay.style.transition='opacity 0.3s';
   setTimeout(()=>overlay.style.display='none',300);
   setTimeout(renderAISuggs,600);
