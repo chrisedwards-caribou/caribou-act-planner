@@ -243,6 +243,14 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);font-size:13px
 
 <div class="main">
   <div id="view-hint" class="view-hint"></div>
+  <div class="legend" style="margin-bottom:10px;">
+  <div class="legend-item"><span class="legend-dot" style="background:var(--live);"></span>Live</div>
+  <div class="legend-item"><span class="legend-dot" style="background:var(--contracted);"></span>Contracted</div>
+  <div class="legend-item"><span class="legend-dot" style="background:var(--pipeline);background-image:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,0.5) 2px,rgba(255,255,255,0.5) 4px);"></span>Pipeline</div>
+  <div class="legend-item"><span class="legend-dot" style="background:var(--internal);"></span>Internal</div>
+  <div class="legend-item"><span class="legend-dot" style="background:var(--free-bar);"></span>Free</div>
+  <div class="legend-item"><div class="legend-line"></div>Target</div>
+</div>
   <div id="view"></div>
 </div>
 
@@ -365,6 +373,7 @@ async function loadNotionData() {
         if (data.config[`Target_L${l}`]!==undefined) LT[l]=data.config[`Target_L${l}`];
       });
     }
+    console.log('Notion loaded - people:', (data.people||[]).length, 'allocs months:', Object.keys(data.allocations||{}).length, 'first alloc month keys:', Object.keys(data.allocations||{}).slice(0,3));
     notionLoaded=true; return true;
   } catch(e) {
     console.warn('Notion load failed:',e.message);
@@ -409,7 +418,7 @@ function capPill(total,av){
 }
 
 function leaveDays(person,m,y){
-  const mk=(y-2026)*12+(m-1);
+  const mk=(y-2026)*12+m;
   return (leaveByPerson[person.name]||{})[mk]||0;
 }
 
@@ -431,7 +440,7 @@ function avail(person,m,y){
 
 function targetDays(p,m,y){return Math.round(LT[p.level]*avail(p,m,y));}
 
-function mkey(m,y){return(y-2026)*12+(m-1);}
+function mkey(m,y){return(y-2026)*12+m;}
 function mdata(m,y){return allocs[mkey(m,y)]||[];}
 function ma(){return mdata(curMonth,curYear);}
 
@@ -713,11 +722,11 @@ function renderOverview(){
     </div>
   </div>`;
 
-  document.getElementById("view").innerHTML=alertsSec+cards+pillarStrip+`<div class="ov-3col">
+  document.getElementById("view").innerHTML=cards+pillarStrip+`<div class="ov-3col">
     <div class="ovsec"><div class="ovsec-title">Team days${winLabel}</div>${buildDonut()}</div>
     <div class="ovsec"><div class="ovsec-title">Utilisation by level</div>${levelHTML}</div>
-    <div class="ovsec"><div class="ovsec-title">LOE budget vs allocated${winSize>1?" (aggregate)":""}</div>${loeProjHTML}<div style="margin-top:6px;font-size:10px;color:var(--text-3);font-style:italic;">Grey bar = LOE budget. Coloured bar = allocated. Green = on budget, amber = 1-3d off, red = 4d+ off.</div></div>
-  </div>`+aiPanel;
+    <div class="ovsec"><div class="ovsec-title">LOE budget vs allocated${winSize>1?" (aggregate)":""}</div>${loeProjHTML||'<div style="padding:20px;text-align:center;font-size:11px;color:var(--text-3);">No LOE data yet — add budgeted days to the LOE database.</div>'}<div style="margin-top:6px;font-size:10px;color:var(--text-3);font-style:italic;">Grey = LOE budget · Coloured = allocated · 🟢 on budget · 🟡 1-3d off · 🔴 4d+ off</div></div>
+  </div>`+alertsSec+aiPanel;
 
   renderAISuggs();
 }
