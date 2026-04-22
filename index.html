@@ -78,7 +78,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);font-size:13px
 .pgcard:hover{box-shadow:0 2px 10px rgba(30,17,37,0.1);}
 .pgcard.good{border-top:3px solid var(--clover);}
 .pgcard.below{border-left:4px solid var(--naranja);}
-.pgcard.over{background:linear-gradient(135deg,#FDE8E6 0%,#FFF5F5 100%);border:2px solid var(--red);}
+.pgcard.over{background:linear-gradient(135deg,#FDE8E6 0%,#FFF8F8 100%);border:2px solid var(--red);box-shadow:0 0 0 1px rgba(192,57,43,0.15);}
 .pgcard-head{padding:10px 12px;display:flex;align-items:center;gap:8px;}
 .pgcard-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;position:relative;}
 .pgcard-info{flex:1;min-width:0;}
@@ -274,7 +274,8 @@ const PERSON_STYLES = {
 };
 
 let people=[],projects=[],allocs={},loe={},leaveByPerson={},pipeline=[];
-let curMonth=3,curYear=2026,winSize=1,curView="overview",sortMode="seniority";
+const _now=new Date();
+let curMonth=_now.getMonth(),curYear=_now.getFullYear(),winSize=1,curView="overview",sortMode="seniority";
 let filterPersons=new Set(),filterProjects=new Set(),filterClients=new Set();
 let filterStatus=null,filterPillar=null;
 let expanded=new Set(),expandedPanels={};
@@ -386,10 +387,10 @@ function windowMetrics(months){
 }
 function personStatus(p,m,y){
   const mo=m!==undefined?m:curMonth,yr=y!==undefined?y:curYear;
-  const av=avail(p,mo,yr),bill=billAlloc(p.id,mo,yr),tgt=targetDays(p,mo,yr),tot=totalAlloc(p.id,mo,yr);
+  const av=avail(p,mo,yr),tot=totalAlloc(p.id,mo,yr);
   if(tot>av)return"over";
-  if(bill>=tgt)return"good";
-  return"below";
+  if(Math.max(0,av-tot)===0)return"good"; // fully resourced = no free days
+  return"below"; // spare capacity = free days exist
 }
 function pipelineMonthDemand(m,y){
   let total=0;
@@ -560,24 +561,13 @@ function showAvailPopover(){
     return Math.max(0,avail(p)-totalAlloc(p.id))>0;
   }).sort((a,b)=>Math.max(0,avail(b)-totalAlloc(b.id))-Math.max(0,avail(a)-totalAlloc(a.id)));
   const rows=freeList.map(p=>{
-    const av=avail(p),tot=totalAlloc(p.id),free=Math.max(0,av-tot),bill=billAlloc(p.id),tgt=targetDays(p);
-    const als=pa(p.id).filter(a=>a.st!=="internal");
-    const projList=als.map(a=>{const proj=projects.find(x=>x.id===a.pr);return(proj?proj.name:(a.prName||a.pr))+'  ('+a.d+'d)';}).join(', ');
+    const av=avail(p),tot=totalAlloc(p.id),free=Math.max(0,av-tot);
     return`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">
       <div class="pgcard-av" style="background:${p.col};color:${p.tc};width:28px;height:28px;font-size:9px;flex-shrink:0;">${p.initials}</div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:600;font-size:12px;color:var(--plum);">${p.name} <span style="font-size:10px;font-weight:400;color:var(--text-3);">L${p.level} · ${titleOf(p)}</span></div>
-        <div style="font-size:10px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${projList||'No allocations'}</div>
-      </div>
-      <div style="flex-shrink:0;text-align:right;">
-        <div class="free-bubble">${free}d free</div>
-        <div style="font-size:10px;color:var(--text-3);margin-top:2px;">${bill}/${av}d billable</div>
-      </div>
+      <div style="flex:1;"><div style="font-weight:600;font-size:12px;color:var(--plum);">${p.name}</div><div style="font-size:10px;color:var(--text-3);">${titleOf(p)} · L${p.level}</div></div>
+      <div class="free-bubble">${free}d free</div>
     </div>`;
   }).join("");
-  makePopover('av','💚 Available to allocate',
-    `${freeList.length} people with spare capacity — ${MONTHS[curMonth]} ${curYear}`,
-    rows||'<div style="font-size:11px;color:var(--text-3);">Everyone is fully allocated.</div>');
 }
 
 function showHolidayPopover(){
@@ -744,7 +734,7 @@ function renderOverview(){
     <div class="scard clickable" style="border-top:3px solid var(--naranja);" onclick="showAvailPopover()">
       <div class="scard-label">💚 Available to allocate</div>
       <div class="scard-val ${freeDays>15?"cg":freeDays>0?"ca":"cr"}">${freeDays}d</div>
-      <div class="scard-names">${freeList.map(p=>firstName(p.name)+" ("+Math.max(0,avail(p)-totalAlloc(p.id))+"d)").join(", ")||"Team fully allocated"}</div>
+      <div class="scard-sub">${freeList.length} ${freeList.length===1?"person":"people"} with spare capacity · click for detail</div>
     </div>
     <div class="scard clickable" style="border-top:3px solid var(--pipeline);" onclick="showPipelinePopover()">
       <div class="scard-label">🔮 Pipeline demand</div>
@@ -766,9 +756,10 @@ function renderOverview(){
     const col=uPct>=tPct2?"var(--clover)":uPct>=tPct2*0.85?"var(--naranja)":"var(--red)";
     return`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">
       <div style="min-width:110px;font-size:11px;font-weight:500;color:var(--plum);">L${lv} ${TITLES[lv]}<span style="font-size:10px;color:var(--text-3);font-weight:400;"> · ${lvP.length}</span></div>
-      <div style="flex:1;position:relative;height:12px;background:var(--pebble);border-radius:3px;">
-        <div style="width:${uPct}%;height:100%;border-radius:3px;background:${col};"></div>
-        <div style="position:absolute;top:-3px;left:${tPct2}%;height:18px;width:2px;background:var(--plum);border-radius:1px;"></div>
+      <div style="flex:1;position:relative;height:12px;background:var(--pebble);border-radius:3px;overflow:hidden;">
+        <div style="width:${Math.min(uPct,100)}%;height:100%;border-radius:3px;background:${col};"></div>
+        ${uPct>100?`<div style="position:absolute;top:0;right:0;width:${Math.min(uPct-100,20)}px;height:100%;background:var(--red);opacity:0.6;"></div>`:""}
+        <div style="position:absolute;top:-3px;left:${Math.min(tPct2,98)}%;height:18px;width:2px;background:var(--plum);border-radius:1px;"></div>
       </div>
       <div style="min-width:110px;text-align:right;font-size:11px;"><span style="font-weight:600;color:${col};">${uPct}%</span> vs ${tPct2}% · ${lvBi}/${lvAv}d</div>
     </div>`;
@@ -812,7 +803,7 @@ function renderOverview(){
 
   document.getElementById("view").innerHTML=cards+`<div class="ov-3col">
     <div class="ovsec"><div class="ovsec-title">Team days${winLabel}</div>${buildMainDonut()}</div>
-    <div class="ovsec"><div class="ovsec-title">Utilisation by level</div>${levelHTML}<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px;"><div class="ovsec-title">Sub-service strength</div>${buildStrengthHeatmap()}</div></div>
+    <div class="ovsec"><div class="ovsec-title">Utilisation by level</div>${levelHTML}</div>
     <div class="ovsec"><div class="ovsec-title">LOE budget vs allocated${winSize>1?" (aggregate)":""}</div>${loeProjHTML||'<div style="padding:12px 0;font-size:11px;color:var(--text-3);">No LOE data yet.</div>'}<div style="margin-top:6px;font-size:9px;color:var(--text-3);font-style:italic;">Grey = LOE budget · Coloured = allocated. Does not reconcile vs budget.</div></div>
   </div>`+aiPanel;
   renderAISuggs();
@@ -847,7 +838,7 @@ function renderPeople(){
       <button class="sort-btn ${!filterStatus?"active":""}" onclick="setFilterStatus(null)">All</button>
       <button class="sort-btn ${filterStatus==="over"?"active":""}" onclick="setFilterStatus('over')">⚠️ Over-resourced</button>
       <button class="sort-btn ${filterStatus==="below"?"active":""}" onclick="setFilterStatus('below')">💚 Spare capacity</button>
-      <button class="sort-btn ${filterStatus==="good"?"active":""}" onclick="setFilterStatus('good')">🟢 On target</button>
+      <button class="sort-btn ${filterStatus==="good"?"active":""}" onclick="setFilterStatus('good')">✓ Fully resourced</button>
     </div>
     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
       <span class="filter-label">Project:</span>${projBtns}
@@ -883,7 +874,7 @@ function renderPeople(){
     let statusEl="";
     if(isOver)statusEl=`<span class="over-bubble">⚠️ ${total-av}d over</span>`;
     else if(free>0)statusEl=`<span class="free-bubble">${free}d free</span>`;
-    else statusEl=`<span style="font-size:10px;color:var(--text-3);">At capacity</span>`;
+    else statusEl=`<span style="font-size:10px;color:var(--clover);font-weight:600;">✓ Fully resourced</span>`;
 
     // Allocation rows for expand panel
     const allocRows=als.map(a=>{
@@ -900,7 +891,7 @@ function renderPeople(){
     </tbody></table>`;
 
     const leaveCallout=leaveD>0?`<div class="callout" style="background:#FDE8E6;color:#8A3020;border-left:3px solid var(--leave);">🌴 ${leaveD}d leave — available days: ${av}d.</div>`:"";
-    const tgtCallout=bill>=tgt?`<div class="callout co-g">🟢 On target (${tPct2}% = ${tgt}d).</div>`:isOver?`<div class="callout co-risk">⚠️ Over-resourced by ${total-av}d. Check allocations.</div>`:`<div class="callout co-a">💚 ${free}d spare capacity (target ${tgt}d).</div>`;
+    const tgtCallout=isOver?`<div class="callout co-risk">⚠️ Over-resourced by ${total-av}d. Check allocations.</div>`:free===0?`<div class="callout co-g">✓ Fully resourced — all ${av}d allocated. Billable target: ${tgt}d (${tPct2}%).</div>`:`<div class="callout co-a">💚 ${free}d spare capacity this month. Billable target: ${tgt}d (${tPct2}% of ${av}d).</div>`;
     const riskCallout=riskFlag?`<div class="callout co-risk">⚠️ ${CT_LABELS[person.contractType]} ends ${person.contractEnd}.</div>`:"";
     const contractPanel=`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">${countryFlag(person.country)} <span style="font-size:11px;">${person.country}</span>${contractBadge(person)}</div>
     <div class="fte-grid">
@@ -988,11 +979,12 @@ function renderPeopleMulti(wm){
       const freeH=Math.max(0,maxH-liveH-contractedH-pipeH-leaveH);
       let yOff=maxH;
       const rects=[];
-      if(freeH>0){yOff-=freeH;rects.push(`<rect x="${x}" y="${yOff}" width="${barW}" height="${freeH}" fill="var(--free-bar)" rx="1"/>`);}
-      if(leaveH>0){yOff-=leaveH;rects.push(`<rect x="${x}" y="${yOff}" width="${barW}" height="${leaveH}" fill="var(--leave)" rx="1"/>`);}
-      if(pipeH>0){yOff-=pipeH;rects.push(`<rect x="${x}" y="${yOff}" width="${barW}" height="${pipeH}" fill="var(--pipeline)" rx="1"/>`);}
-      if(contractedH>0){yOff-=contractedH;rects.push(`<rect x="${x}" y="${yOff}" width="${barW}" height="${contractedH}" fill="var(--contracted)" rx="1"/>`);}
+      // Draw bottom to top: live (bottom), contracted, pipeline, leave, free (top)
       if(liveH>0){yOff-=liveH;rects.push(`<rect x="${x}" y="${yOff}" width="${barW}" height="${liveH}" fill="var(--live)" rx="1"/>`);}
+      if(contractedH>0){yOff-=contractedH;rects.push(`<rect x="${x}" y="${yOff}" width="${barW}" height="${contractedH}" fill="var(--contracted)" rx="1"/>`);}
+      if(pipeH>0){yOff-=pipeH;rects.push(`<rect x="${x}" y="${yOff}" width="${barW}" height="${pipeH}" fill="var(--pipeline)" rx="1"/>`);}
+      if(leaveH>0){yOff-=leaveH;rects.push(`<rect x="${x}" y="${yOff}" width="${barW}" height="${leaveH}" fill="var(--leave)" rx="1"/>`);}
+      if(freeH>0){yOff-=freeH;rects.push(`<rect x="${x}" y="${yOff}" width="${barW}" height="${freeH}" fill="var(--free-bar)" rx="1"/>`);}
       const tgtY=maxH-Math.round((d.tgt/d.av)*maxH);
       rects.push(`<line x1="${x}" y1="${tgtY}" x2="${x+barW}" y2="${tgtY}" stroke="var(--plum)" stroke-width="1.5"/>`);
       return`<g style="cursor:pointer;" onclick="jumpToMonth(${d.m},${d.y})" title="${MONTHS[d.m]} ${d.y}: ${d.bill}d billable">${rects.join("")}</g>`;
