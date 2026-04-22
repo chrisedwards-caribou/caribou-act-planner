@@ -1247,4 +1247,60 @@ function renderAISuggs(){
   } else {
     el.innerHTML="";
   }
-}>
+function appendAIMsg(role,content){
+  const el=document.getElementById('ai-msgs');if(!el)return;
+  if(aiMessages.length===1&&role==='user')el.innerHTML="";
+  const div=document.createElement('div');
+  div.style.cssText=`max-width:85%;padding:8px 11px;border-radius:${role==='user'?'10px 10px 3px 10px':'3px 10px 10px 10px'};font-size:12px;line-height:1.5;align-self:${role==='user'?'flex-end':'flex-start'};background:${role==='user'?'var(--plum)':'var(--chalk)'};color:${role==='user'?'white':'var(--text)'};`;
+  div.innerHTML=content.replace(/\n/g,'<br>');el.appendChild(div);el.scrollTop=el.scrollHeight;
+}
+
+async function sendAI(prefill){
+  const input=document.getElementById('ai-input'),btn=document.getElementById('ai-send-btn');
+  const text=(prefill||input.value).trim();if(!text||aiLoading)return;
+  input.value='';aiLoading=true;if(btn)btn.disabled=true;
+  aiMessages.push({role:'user',content:text});appendAIMsg('user',text);renderAISuggs();
+  const teamCtx=people.map(p=>{
+    const av=avail(p),bill=billAlloc(p.id),tgt=targetDays(p),free=Math.max(0,av-totalAlloc(p.id)),leaveD=leaveDays(p);
+    const als=pa(p.id).map(a=>{const proj=projects.find(x=>x.id===a.pr);return(proj?proj.name:(a.prName||a.pr))+':'+a.d+'d('+a.st+')';}).join(', ');
+    const topSkills=Object.entries(p.skills||{}).filter(([k,v])=>v>=3).map(([k])=>{const s=SS.find(x=>x.id===k);return s?s.l:null;}).filter(Boolean).join(', ');
+    const topThemes=Object.entries(p.themes||{}).filter(([k,v])=>v>=3).map(([k])=>k).join(', ');
+    return`${p.name} (L${p.level}, ${p.pillar}${leaveD>0?', '+leaveD+'d leave':''}): ${bill}/${av}d billable, ${free}d free. ${als}${topSkills?'. Strong: '+topSkills:''}${topThemes?'. Themes: '+topThemes:''}.`;
+  }).join('\n');
+  const context=`=== CARIBOU RESOURCE PLANNER — ${MONTHS[curMonth]} ${curYear} ===\nTargets: L5=80%, L4=80%, L3=90%, L2=95%. 19d/month base.\n\nTEAM:\n${teamCtx}`;
+  const typingId='t-'+Date.now();const td=document.createElement('div');td.id=typingId;
+  td.style.cssText='padding:8px 11px;border-radius:3px 10px 10px 10px;font-size:12px;background:var(--chalk);color:var(--text-3);align-self:flex-start;';td.textContent='Thinking...';
+  const msgsEl=document.getElementById('ai-msgs');if(msgsEl){msgsEl.appendChild(td);msgsEl.scrollTop=msgsEl.scrollHeight;}
+  try{
+    const res=await fetch(NETLIFY_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:aiMessages.map(m=>({role:m.role,content:m.content})),context})});
+    const data=await res.json();document.getElementById(typingId)?.remove();
+    const reply=data.reply||'No response.';aiMessages.push({role:'assistant',content:reply});appendAIMsg('assistant',reply);
+  }catch(e){document.getElementById(typingId)?.remove();appendAIMsg('assistant','Connection error.');}
+  aiLoading=false;if(btn)btn.disabled=false;
+}
+
+function render(){
+  document.getElementById("mon-label").textContent=MONTHS[curMonth]+" "+curYear;
+  renderAlerts();
+  const hints={overview:"Click cards for detail · toggle months to aggregate",people:"Click a person to expand · filter by project or status · click month bars to navigate",projects:"Filter by client or person · click a project to expand · click matrix cells to see who is allocated",skills:"Select themes or sub-services to filter · ⭐ interested through ⭐⭐⭐ expert"};
+  document.getElementById("view-hint").innerHTML=hints[curView]||"";
+  if(curView==="overview")renderOverview();
+  else if(curView==="people")renderPeople();
+  else if(curView==="projects")renderProjects();
+  else renderSkills();
+}
+
+(async function boot(){
+  const overlay=document.getElementById('loading-overlay'),status=document.getElementById('loading-status');
+  status.textContent='Fetching from Notion...';
+  const ok=await loadNotionData();
+  if(!ok){status.textContent='Notion unavailable — check worker';await new Promise(r=>setTimeout(r,1200));}
+  overlay.style.opacity='0';overlay.style.transition='opacity 0.3s';
+  setTimeout(()=>overlay.style.display='none',300);
+  renderAlerts();
+  setTimeout(renderAISuggs,400);
+  render();
+})();
+</script>
+</body>
+</html>
