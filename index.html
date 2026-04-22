@@ -1247,6 +1247,7 @@ function renderAISuggs(){
   } else {
     el.innerHTML="";
   }
+}
 function appendAIMsg(role,content){
   const el=document.getElementById('ai-msgs');if(!el)return;
   if(aiMessages.length===1&&role==='user')el.innerHTML="";
