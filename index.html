@@ -325,8 +325,8 @@ async function loadNotionData(){
 function pct(a,b){return b>0?Math.round(a/b*100):0;}
 function firstName(name){const p=name.split(" ");return p[0]==="Grace"&&p.length>1?p[0]+" "+p[1]:p[0];}
 function countryFlag(c){const f={"UK":"🇬🇧","France":"🇫🇷","Kenya":"🇰🇪","Hungary":"🇭🇺","South Africa":"🇿🇦","Palestine":"🇵🇸","Canada":"🇨🇦","Italy":"🇮🇹","Uganda":"🇺🇬","Australia":"🇦🇺","Spain":"🇪🇸"};return f[c]||c;}
-function stCol(st){return{live:"var(--live)",contracted:"var(--contracted)",pipeline:"var(--pipeline)"}[st]||"var(--pebble)";}
-function sBadge(st){const cls={live:"p-live",contracted:"p-contracted",pipeline:"p-pipeline"}[st]||"p-gy";const icon={live:"▶️",contracted:"📋",pipeline:"🔮"}[st]||"";return`<span class="pill ${cls}">${icon} ${st}</span>`;}
+function stCol(st){return{live:"var(--live)",contracted:"var(--contracted)",BD:"var(--pipeline)"}[st]||"var(--pebble)";}
+function sBadge(st){const cls={live:"p-live",contracted:"p-contracted",BD:"p-pipeline"}[st]||"p-gy";const icon={live:"▶️",contracted:"📋",BD:"🔮"}[st]||"";return`<span class="pill ${cls}">${icon} ${st}</span>`;}
 function contractBadge(p){const col=CT_COLS[p.contractType]||"#604D64";return`<span class="ct-badge" style="background:${col}20;color:${col};">${CT_LABELS[p.contractType]||p.contractType}</span>`;}
 function titleOf(p){return p.customTitle||TITLES[p.level]||"Team Member";}
 function leaveDays(person,m,y){
@@ -497,6 +497,7 @@ function makePopover(id,title,subtitle,content){
   const overlay=document.createElement('div');overlay.id=id+'-overlay';overlay.className='popover-overlay';
   overlay.onclick=closePopovers;
   const pop=document.createElement('div');pop.id=id+'-pop';pop.className='popover-box';
+  pop.onclick=e=>e.stopPropagation();
   pop.innerHTML=`<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);">
     <div><div style="font-family:var(--fh);font-size:16px;font-weight:600;color:var(--plum);">${title}</div>
     ${subtitle?`<div style="font-size:11px;color:var(--text-3);margin-top:2px;">${subtitle}</div>`:''}
@@ -551,11 +552,12 @@ function showPipelinePopover(){
       ${monthlyWtd>0?`<div style="font-size:11px;color:var(--pipeline);font-weight:600;margin-top:3px;">~${monthlyWtd}d expected this month</div>`:'<div style="font-size:10px;color:var(--text-3);">Not active this month</div>'}
     </div>`;
   }).join("");
-  makePopover('pp','🔮 Pipeline opportunities',`${MONTHS[curMonth]} ${curYear} · probability-weighted capacity demand`,
+  makePopover('pp','🔮 BD opportunities',`${MONTHS[curMonth]} ${curYear} · probability-weighted capacity demand`,
     summary+(rows||'<div style="font-size:11px;color:var(--text-3);">No active opportunities.</div>'));
 }
 
 function showAvailPopover(){
+  closePopovers();
   const freeList=people.filter(p=>{
     if(contractExpiredByMonth(p,curMonth,curYear))return false;
     return Math.max(0,avail(p)-totalAlloc(p.id))>0;
@@ -610,7 +612,7 @@ function showCellPopover(projId,m,y){
 function buildPersonDonut(person,als,free,av){
   const donutData=als.filter(a=>a.d>0).map(a=>{
     const proj=projects.find(x=>x.id===a.pr)||{name:a.prName||a.pr};
-    return{label:proj.name,val:a.d,col:stCol(a.st),isPipeline:a.st==="pipeline"};
+    return{label:proj.name,val:a.d,col:stCol(a.st),isPipeline:a.st==="BD"};
   });
   const leaveD=leaveDays(person);
   if(leaveD>0)donutData.push({label:"Leave 🌴",val:leaveD,col:"var(--leave)"});
@@ -636,18 +638,18 @@ function buildPersonDonut(person,als,free,av){
 // ── OVERVIEW ──
 function buildMainDonut(){
   const wm=windowMonths();
-  const tots={live:0,contracted:0,pipeline:0,leave:0};let totAv=0;
+  const tots={live:0,contracted:0,BD:0,leave:0};let totAv=0;
   for(const{m,y}of wm){
     const md=mdata(m,y);
-    for(const k of['live','contracted','pipeline'])tots[k]+=md.filter(a=>a.st===k).reduce((s,a)=>s+a.d,0);
+    for(const k of['live','contracted','BD'])tots[k]+=md.filter(a=>a.st===k).reduce((s,a)=>s+a.d,0);
     people.filter(p=>!contractExpiredByMonth(p,m,y)).forEach(p=>{totAv+=avail(p,m,y);tots.leave+=leaveDays(p,m,y);});
   }
   const totBill=tots.live+tots.contracted;
-  const freeD=Math.max(0,totAv-tots.live-tots.contracted-tots.pipeline);
+  const freeD=Math.max(0,totAv-tots.live-tots.contracted-tots.BD);
   const donutData=[
     {label:"Live",val:tots.live,col:"var(--live)"},
     {label:"Contracted",val:tots.contracted,col:"var(--contracted)"},
-    {label:"Pipeline",val:tots.pipeline,col:"var(--pipeline)",hatch:true},
+    {label:"BD",val:tots.BD,col:"var(--pipeline)",hatch:true},
     {label:"Leave 🌴",val:tots.leave,col:"var(--leave)"},
     {label:"Free",val:freeD,col:"var(--free-bar)"}
   ].filter(d=>d.val>0);
@@ -737,7 +739,7 @@ function renderOverview(){
       <div class="scard-sub">${freeList.length} ${freeList.length===1?"person":"people"} with spare capacity · click for detail</div>
     </div>
     <div class="scard clickable" style="border-top:3px solid var(--pipeline);" onclick="showPipelinePopover()">
-      <div class="scard-label">🔮 Pipeline demand</div>
+      <div class="scard-label">🔮 BD pipeline demand</div>
       <div class="scard-val cp">${pipelineDemand}d</div>
       <div class="scard-sub">Wtd expected this month · ${pipeline.length} opps · click for detail</div>
     </div>
@@ -789,15 +791,20 @@ function renderOverview(){
     </div>`;
   }).join("");
 
-  const aiPanel=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-top:12px;">
-    <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--plum);">
-      <span>🤖</span><div><div style="font-family:var(--fh);font-size:14px;font-weight:600;color:white;">AI assistant</div><div style="font-size:10px;color:rgba(255,255,255,0.6);">Powered by Claude · reads live Notion data</div></div>
+  const aiPanel=`<div style="background:var(--surface);border:2px solid var(--tangerine);border-radius:var(--r);overflow:hidden;margin-top:12px;box-shadow:0 2px 12px rgba(232,100,42,0.12);">
+    <div style="padding:12px 16px;border-bottom:1px solid rgba(232,100,42,0.2);display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--plum) 0%,#6F5175 100%);">
+      <span style="font-size:18px;">🤖</span>
+      <div>
+        <div style="font-family:var(--fh);font-size:16px;font-weight:600;color:white;">AI assistant</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.65);">Powered by Claude · reads live Notion data</div>
+      </div>
+      <div style="margin-left:auto;padding:3px 10px;background:rgba(255,255,255,0.15);border-radius:99px;font-size:10px;color:rgba(255,255,255,0.8);font-weight:600;">BETA</div>
     </div>
-    <div id="ai-msgs" style="height:180px;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:8px;"><div style="text-align:center;font-size:11px;color:var(--text-3);margin-top:50px;">Ask me anything about your team's resourcing, skills or availability.</div></div>
-    <div id="ai-suggs" style="padding:0 14px 8px;display:flex;flex-wrap:wrap;gap:5px;"></div>
-    <div style="padding:8px 12px;border-top:1px solid var(--border);display:flex;gap:8px;">
-      <input id="ai-input" type="text" placeholder="Ask about your team..." style="flex:1;padding:7px 10px;border:1px solid var(--border-strong);border-radius:var(--rsm);font-size:12px;font-family:var(--fb);background:var(--surface);color:var(--text);" onkeydown="if(event.key==='Enter')sendAI()">
-      <button onclick="sendAI()" id="ai-send-btn" style="padding:7px 14px;background:var(--tangerine);color:white;border:none;border-radius:var(--rsm);font-size:12px;cursor:pointer;font-family:var(--fb);font-weight:600;">Send</button>
+    <div id="ai-msgs" style="height:200px;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:8px;background:var(--off-white);"><div style="text-align:center;font-size:11px;color:var(--text-3);margin-top:60px;">Ask me anything about your team's resourcing, skills or availability.</div></div>
+    <div id="ai-suggs" style="padding:8px 16px 4px;display:flex;flex-wrap:wrap;gap:6px;background:var(--off-white);border-top:1px solid var(--border);"></div>
+    <div style="padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px;background:var(--surface);">
+      <input id="ai-input" type="text" placeholder="Ask about your team's capacity, skills, or pipeline..." style="flex:1;padding:8px 12px;border:1.5px solid var(--border-strong);border-radius:var(--rsm);font-size:12px;font-family:var(--fb);background:var(--surface);color:var(--text);" onkeydown="if(event.key==='Enter')sendAI()">
+      <button onclick="sendAI()" id="ai-send-btn" style="padding:8px 16px;background:var(--tangerine);color:white;border:none;border-radius:var(--rsm);font-size:12px;cursor:pointer;font-family:var(--fb);font-weight:600;letter-spacing:0.02em;">Send</button>
     </div>
   </div>`;
 
@@ -838,6 +845,7 @@ function renderPeople(){
       <button class="sort-btn ${!filterStatus?"active":""}" onclick="setFilterStatus(null)">All</button>
       <button class="sort-btn ${filterStatus==="over"?"active":""}" onclick="setFilterStatus('over')">⚠️ Over-resourced</button>
       <button class="sort-btn ${filterStatus==="below"?"active":""}" onclick="setFilterStatus('below')">💚 Spare capacity</button>
+      <button class="sort-btn ${filterStatus==="BD"?"active":""}" onclick="setFilterStatus('BD')">🔮 BD</button>
       <button class="sort-btn ${filterStatus==="good"?"active":""}" onclick="setFilterStatus('good')">✓ Fully resourced</button>
     </div>
     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -864,7 +872,7 @@ function renderPeople(){
     const pBadge=_pillars.map(p=>`<span class="pill ${p==="IL"?"p-teal":"p-pl"}" style="font-size:9px;">${p==="F&P"?"F&amp;P":p}</span>`).join(" ");
 
     // Allocation bar segments
-    const segs=als.map(a=>`<div style="width:${Math.min(pct(a.d,av),100)}%;background:${stCol(a.st)};height:100%;flex-shrink:0;${a.st==="pipeline"?"background-image:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(255,255,255,0.45) 3px,rgba(255,255,255,0.45) 6px);":""}"></div>`).join("");
+    const segs=als.map(a=>`<div style="width:${Math.min(pct(a.d,av),100)}%;background:${stCol(a.st)};height:100%;flex-shrink:0;${a.st==="BD"?"background-image:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(255,255,255,0.45) 3px,rgba(255,255,255,0.45) 6px);":""}"></div>`).join("");
     const leaveW=pct(leaveD,AVAIL_DAYS);
     const leaveSeg=leaveD>0?`<div style="width:${leaveW}%;background:var(--leave);height:100%;flex-shrink:0;"></div>`:"";
     const freeW=pct(free,av);
@@ -883,7 +891,7 @@ function renderPeople(){
       const diff=loeDays>0?a.d-loeDays:null;
       const gapText=loeDays>0?(diff===0?"✓":diff>0?`+${diff}d over`:`${diff}d under`):"no LOE";
       const gapCol=loeDays===0?"color:var(--text-3)":diff===0?"color:var(--clover)":Math.abs(diff)===1?"color:var(--naranja)":"color:var(--red)";
-      return`<tr><td style="display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:${stCol(a.st)};flex-shrink:0;"></span>${proj.name}${a.st==="pipeline"?" 🔮":""}</td><td>${sBadge(a.st)}</td><td style="text-align:right;font-weight:600;">${a.d}d</td><td style="font-size:10px;${gapCol}">${gapText}</td></tr>`;
+      return`<tr><td style="display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:${stCol(a.st)};flex-shrink:0;"></span>${proj.name}${a.st==="BD"?" 🔮":""}</td><td>${sBadge(a.st)}</td><td style="text-align:right;font-weight:600;">${a.d}d</td><td style="font-size:10px;${gapCol}">${gapText}</td></tr>`;
     }).join("");
     const allocPanel=`<table class="dt"><thead><tr><th>Project</th><th>Status</th><th style="text-align:right">Days</th><th>vs LOE</th></tr></thead><tbody>${allocRows}
       ${leaveD>0?`<tr><td style="display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--leave);flex-shrink:0;"></span>Leave 🌴</td><td></td><td style="text-align:right;font-weight:600;color:var(--leave);">${leaveD}d</td><td></td></tr>`:""}
@@ -957,7 +965,7 @@ function renderPeopleMulti(wm){
       const als=pa(person.id,m,y);
       const live=als.filter(a=>a.st==="live").reduce((s,a)=>s+a.d,0);
       const contracted=als.filter(a=>a.st==="contracted").reduce((s,a)=>s+a.d,0);
-      const pipeline2=als.filter(a=>a.st==="pipeline").reduce((s,a)=>s+a.d,0);
+      const pipeline2=als.filter(a=>a.st==="BD").reduce((s,a)=>s+a.d,0);
       const free=Math.max(0,av-live-contracted-pipeline2);
       return{av,bill,tgt,leaveD,live,contracted,pipeline2,free,m,y};
     });
@@ -1045,10 +1053,16 @@ function renderProjects(){
   const personBtns=_actPpl.map(p=>`<button class="sort-btn ${filterPersons.has(p.id)?"active":""}" style="font-size:10px;padding:2px 8px;margin:1px;" onclick="toggleFilterPerson(${p.id})">${firstName(p.name)}</button>`).join("");
   const filterBar=`<div class="filter-bar">
     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span class="filter-label">Client:</span>${clientBtns}${filterClients.size>0?`<button class="sort-btn" onclick="clearFilterClients()" style="color:var(--red);">✕</button>`:""}</div>
-    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span class="filter-label">Person:</span>${personBtns}${filterPersons.size>0?`<button class="sort-btn" onclick="clearFilterPersons()" style="color:var(--red);">✕</button>`:""}</div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;"><span class="filter-label">Person:</span>${personBtns}${filterPersons.size>0?`<button class="sort-btn" onclick="clearFilterPersons()" style="color:var(--red);">✕</button>`:""}</div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span class="filter-label">Status:</span>
+      <button class="sort-btn ${!filterStatus?"active":""}" onclick="setFilterStatus(null)">All</button>
+      <button class="sort-btn ${filterStatus==="live"?"active":""}" onclick="setFilterStatus('live')">▶️ Live</button>
+      <button class="sort-btn ${filterStatus==="contracted"?"active":""}" onclick="setFilterStatus('contracted')">📋 Contracted</button>
+      <button class="sort-btn ${filterStatus==="BD"?"active":""}" onclick="setFilterStatus('BD')">🔮 BD</button>
+    </div>
   </div>`;
 
-  const html2=projects.filter(p=>p.id!=="INT").map(proj=>{
+  const html2=projects.filter(p=>p.id!=="INT").filter(proj=>!filterStatus||proj.status===filterStatus).map(proj=>{
     let pA=mdata(curMonth,curYear).filter(a=>a.pr===proj.id);
     if(filterPersons.size>0)pA=pA.filter(a=>filterPersons.has(a.p));
     if(filterClients.size>0&&!filterClients.has(proj.client))return"";
@@ -1089,7 +1103,7 @@ function renderProjects(){
     }).join('');
 
     const lTag=proj.lift?`<span class="tag t-l${proj.lift==="high"?"h":proj.lift==="medium"?"m":"l"}">${proj.lift} lift</span>`:"";
-    const statusIcon={live:"▶️",contracted:"📋",pipeline:"🔮"}[proj.status]||"";
+    const statusIcon={live:"▶️",contracted:"📋",BD:"🔮"}[proj.status]||"";
 
     return`<div class="pjgcard" onclick="toggleProjExpand('proj-${proj.id}')">
   <div class="pjgcard-head">
@@ -1127,7 +1141,7 @@ function renderProjectsMulti(wm){
   );
   const thCols=wm.map(({label,l1})=>`<th style="text-align:center;min-width:72px;white-space:nowrap;font-size:11px;">${label}</th>`).join("");
   const rows=visProjects.map(proj=>{
-    const statusIcon={live:"▶️",contracted:"📋",pipeline:"🔮"}[proj.status]||"";
+    const statusIcon={live:"▶️",contracted:"📋",BD:"🔮"}[proj.status]||"";
     const cols=wm.map(({m,y})=>{
       const pA=mdata(m,y).filter(a=>a.pr===proj.id);
       const days=pA.reduce((s,a)=>s+a.d,0);
@@ -1225,55 +1239,12 @@ function renderSkills(){
 
 // ── AI ──
 const AI_SUGGESTIONS=["Who has spare capacity this month?","What are our contract risks?","Who can lead on blended finance?","Which projects are under LOE budget?","Who has climate expertise and is available?"];
-function renderAISuggs(){const el=document.getElementById('ai-suggs');if(!el)return;el.innerHTML=aiMessages.length===0?AI_SUGGESTIONS.map(s=>`<button onclick="sendAI('${s.replace(/'/g,"\\'")}') " style="padding:3px 9px;border:1px solid var(--border-strong);border-radius:99px;font-size:10px;background:transparent;cursor:pointer;color:var(--text-2);font-family:var(--fb);">${s}</button>`).join(""):"";}
-function appendAIMsg(role,content){const el=document.getElementById('ai-msgs');if(!el)return;if(aiMessages.length===1&&role==='user')el.innerHTML="";const div=document.createElement('div');div.style.cssText=`max-width:85%;padding:8px 11px;border-radius:${role==='user'?'10px 10px 3px 10px':'3px 10px 10px 10px'};font-size:12px;line-height:1.5;align-self:${role==='user'?'flex-end':'flex-start'};background:${role==='user'?'var(--plum)':'var(--chalk)'};color:${role==='user'?'white':'var(--text)'};`;div.innerHTML=content.replace(/\n/g,'<br>');el.appendChild(div);el.scrollTop=el.scrollHeight;}
-async function sendAI(prefill){
-  const input=document.getElementById('ai-input'),btn=document.getElementById('ai-send-btn');
-  const text=(prefill||input.value).trim();if(!text||aiLoading)return;
-  input.value='';aiLoading=true;if(btn)btn.disabled=true;
-  aiMessages.push({role:'user',content:text});appendAIMsg('user',text);renderAISuggs();
-  const teamCtx=people.map(p=>{
-    const av=avail(p),bill=billAlloc(p.id),tgt=targetDays(p),free=Math.max(0,av-totalAlloc(p.id)),leaveD=leaveDays(p);
-    const als=pa(p.id).map(a=>{const proj=projects.find(x=>x.id===a.pr);return(proj?proj.name:(a.prName||a.pr))+':'+a.d+'d('+a.st+')';}).join(', ');
-    const topSkills=Object.entries(p.skills||{}).filter(([k,v])=>v>=3).map(([k])=>{const s=SS.find(x=>x.id===k);return s?s.l:null;}).filter(Boolean).join(', ');
-    const topThemes=Object.entries(p.themes||{}).filter(([k,v])=>v>=3).map(([k])=>k).join(', ');
-    return`${p.name} (L${p.level}, ${p.pillar}${leaveD>0?', '+leaveD+'d leave':''}): ${bill}/${av}d billable, ${free}d free. ${als}${topSkills?'. Strong: '+topSkills:''}${topThemes?'. Themes: '+topThemes:''}.`;
-  }).join('\n');
-  const context=`=== CARIBOU RESOURCE PLANNER — ${MONTHS[curMonth]} ${curYear} ===\nTargets: L5=80%, L4=80%, L3=90%, L2=95%. 19d/month base.\n\nTEAM:\n${teamCtx}`;
-  const typingId='t-'+Date.now();const td=document.createElement('div');td.id=typingId;td.style.cssText='padding:8px 11px;border-radius:3px 10px 10px 10px;font-size:12px;background:var(--chalk);color:var(--text-3);align-self:flex-start;';td.textContent='Thinking...';
-  const msgsEl=document.getElementById('ai-msgs');if(msgsEl){msgsEl.appendChild(td);msgsEl.scrollTop=msgsEl.scrollHeight;}
-  try{
-    const res=await fetch(NETLIFY_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:aiMessages.map(m=>({role:m.role,content:m.content})),context})});
-    const data=await res.json();document.getElementById(typingId)?.remove();
-    const reply=data.reply||'No response.';aiMessages.push({role:'assistant',content:reply});appendAIMsg('assistant',reply);
-  }catch(e){document.getElementById(typingId)?.remove();appendAIMsg('assistant','Connection error.');}
-  aiLoading=false;if(btn)btn.disabled=false;
-}
-
-// ── RENDER ──
-function render(){
-  document.getElementById("mon-label").textContent=MONTHS[curMonth]+" "+curYear;
-  renderAlerts();
-  const hints={overview:"Click cards for detail · toggle months to aggregate",people:"Click a person to expand · filter by project or status · click month bars to navigate",projects:"Filter by client or person · click a project to expand · click matrix cells to see who is allocated",skills:"Select themes or sub-services to filter · ⭐ interested through ⭐⭐⭐ expert"};
-  document.getElementById("view-hint").innerHTML=hints[curView]||"";
-  if(curView==="overview")renderOverview();
-  else if(curView==="people")renderPeople();
-  else if(curView==="projects")renderProjects();
-  else renderSkills();
-}
-
-// ── BOOT ──
-(async function boot(){
-  const overlay=document.getElementById('loading-overlay'),status=document.getElementById('loading-status');
-  status.textContent='Fetching from Notion...';
-  const ok=await loadNotionData();
-  if(!ok){status.textContent='Notion unavailable — using cached data';await new Promise(r=>setTimeout(r,800));}
-  overlay.style.opacity='0';overlay.style.transition='opacity 0.3s';
-  setTimeout(()=>overlay.style.display='none',300);
-  renderAlerts(); // initialise alerts banner immediately on boot
-  setTimeout(renderAISuggs,400);
-  render();
-})();
-</script>
-</body>
-</html>
+function renderAISuggs(){
+  const el=document.getElementById('ai-suggs');
+  if(!el)return;
+  if(aiMessages.length===0){
+    el.innerHTML=AI_SUGGESTIONS.map(s=>`<button onclick="sendAI('${s.replace(/'/g,"\\'")}')" style="padding:4px 11px;border:1.5px solid var(--tangerine);border-radius:99px;font-size:10px;background:transparent;cursor:pointer;color:var(--tangerine);font-family:var(--fb);font-weight:500;" onmouseover="this.style.background='var(--tangerine)';this.style.color='white';" onmouseout="this.style.background='transparent';this.style.color='var(--tangerine)';">${s}</button>`).join("");
+  } else {
+    el.innerHTML="";
+  }
+}>
