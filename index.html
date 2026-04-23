@@ -821,21 +821,13 @@ function renderOverview(){
     .sort((a,b)=>(personFreeDays2[b.id]||0)-(personFreeDays2[a.id]||0));
   const freeDays=Object.values(personFreeDays2).reduce((s,v)=>s+v,0);
 
-  // Ensure global click handler for avail card
-  if(!window._availHandlerSet){
-    window._availHandlerSet=true;
-    document.addEventListener('click',function(e){
-      const card=e.target.closest('[data-action="avail"]');
-      if(card){e.stopPropagation();showAvailPopover();}
-    });
-  }
   const cards=`<div class="summary">
     <div class="scard" style="border-top:3px solid var(--clover);">
       <div class="scard-label">📊 Billable utilisation</div>
       <div class="scard-val ${tPct>=80?"cg":tPct>=60?"ca":"cr"}">${tPct}%</div>
       <div class="scard-sub">${tBi} of ${tAv} days client-paid</div>
     </div>
-    <div class="scard clickable" data-action="avail" style="border-top:3px solid var(--naranja);cursor:pointer;">
+    <div class="scard clickable" style="border-top:3px solid var(--naranja);" onclick="showAvailPopover()">
       <div class="scard-label">💚 Available to allocate</div>
       <div class="scard-val ${freeDays>15?"cg":freeDays>0?"ca":"cr"}">${freeDays}d</div>
       <div class="scard-sub">${freeList.length} ${freeList.length===1?"person":"people"} with spare capacity${winSize>1?" over "+winSize+" months":""} · click for detail</div>
@@ -848,7 +840,7 @@ function renderOverview(){
     <div class="scard clickable" style="border-top:3px solid var(--leave);" onclick="showHolidayPopover()">
       <div class="scard-label">🌴 On leave</div>
       <div class="scard-val" style="color:var(--leave);">${onLeaveNow.length}</div>
-      <div class="scard-names">${onLeaveNow.map(p=>firstName(p.name)+" ("+leaveDays(p)+"d)").join(", ")||"No leave this month"}</div>
+      <div class="scard-names">${onLeaveNow.map(r=>firstName(r.p.name)+(winSize>1?" "+r.month:"")+" ("+r.days+"d)").join(", ")||"No leave this period"}</div>
     </div>
   </div>`;
 
