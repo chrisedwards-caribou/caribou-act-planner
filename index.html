@@ -585,6 +585,9 @@ function showAvailPopover(){
       <div class="free-bubble">${free}d free${winSize>1?" total":""}</div>
     </div>`;
   }).join("");
+  makePopover('av','💚 Available to allocate',
+    `${freeList.length} ${freeList.length===1?'person':'people'} with spare capacity — ${winSize>1?wm2.map(w=>w.label).join(' to '):MONTHS[curMonth]+' '+curYear}`,
+    rows||'<div style="font-size:11px;color:var(--text-3);">Everyone is fully allocated.</div>');
 }
 
 function showHolidayPopover(){
@@ -661,12 +664,15 @@ function buildPersonDonut(person,als,free,av){
   const marker100=isOver?`<line x1="${mx1.toFixed(1)}" y1="${my1.toFixed(1)}" x2="${mx2.toFixed(1)}" y2="${my2.toFixed(1)}" stroke="white" stroke-width="3" stroke-linecap="round"/><line x1="${mx1.toFixed(1)}" y1="${my1.toFixed(1)}" x2="${mx2.toFixed(1)}" y2="${my2.toFixed(1)}" stroke="#C0392B" stroke-width="1.5" stroke-linecap="round"/>
     <text x="97" y="18" text-anchor="start" font-family="'Public Sans',sans-serif" font-size="7" fill="#C0392B">100%</text>`:"";
   const svg=`<svg viewBox="0 0 180 180" style="width:160px;height:160px;flex-shrink:0;">${paths}${marker100}` +
-    `<text x="90" y="80" text-anchor="middle" font-family="'Crimson Text',serif" font-size="18" font-weight="600" fill="${pctCol}">${totalPct}%</text>` +
-    `<text x="90" y="93" text-anchor="middle" font-family="'Public Sans',sans-serif" font-size="8" fill="${pctCol}">allocated</text>` +
-    `<text x="90" y="106" text-anchor="middle" font-family="'Public Sans',sans-serif" font-size="8" fill="${isOver?"#C0392B":"#604D64"}">${billPct}% billable</text></svg>`;
+    `<text x="90" y="86" text-anchor="middle" font-family="'Crimson Text',serif" font-size="22" font-weight="600" fill="${pctCol}">${totalPct}%</text>` +
+    `<text x="90" y="101" text-anchor="middle" font-family="'Public Sans',sans-serif" font-size="9" fill="${pctCol}">allocated${isOver?" ⚠️":""}</text></svg>`;
   const leg=donutData.map(d=>`<div style="display:flex;align-items:center;gap:5px;font-size:11px;margin-bottom:4px;"><span style="width:8px;height:8px;border-radius:50%;background:${d.col};flex-shrink:0;display:inline-block;${d.isBD?"background-image:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(0,0,0,0.2) 2px,rgba(0,0,0,0.2) 4px);":""}"></span><span style="flex:1;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.label}${d.isBD?" 🔮":""}</span><span style="font-weight:600;color:var(--plum);">${d.val}d</span></div>`).join("");
   const bdNote=als.some(a=>a.st==="BD")?`<div style="font-size:10px;color:var(--text-3);margin-top:4px;padding:4px 6px;background:var(--chalk);border-radius:var(--rsm);">🔮 BD time is not counted as billable</div>`:"";
-  return`<div style="display:flex;flex-direction:column;align-items:center;gap:10px;">${svg}<div style="width:100%;">${leg}${bdNote}</div></div>`;
+
+  const tgtPct2=Math.round(LT[person.level]*100);
+  const billCol2=billPct>=tgtPct2?"var(--clover)":billPct>=tgtPct2*0.85?"var(--naranja)":"var(--red)";
+  const billBadge=`<div style="text-align:center;margin-top:2px;"><span style="font-family:var(--fh);font-size:22px;font-weight:600;color:${billCol2};">${billPct}%</span> <span style="font-size:11px;color:var(--text-3);">billable</span> <span style="font-size:10px;padding:1px 6px;border-radius:99px;background:${billCol2}20;color:${billCol2};">target ${tgtPct2}%</span></div>`;
+  return`<div style="display:flex;flex-direction:column;align-items:center;gap:6px;">${svg}${billBadge}<div style="width:100%;margin-top:4px;">${leg}${bdNote}</div></div>`;
 }
 
 // ── OVERVIEW ──
@@ -1377,7 +1383,7 @@ async function sendAI(prefill){
     }).filter(Boolean).join('; ');
     return label+':\n'+lines;
   }).join('\n\n');
-  const context=`=== CARIBOU RESOURCE PLANNER — ${wm_ai.map(w=>w.label).join(' + ')} ===\nTargets: L5=80%, L4=80%, L3=90%, L2=95%. 19d/month base. BD not billable.\n\nAVAILABILITY BY MONTH:\n${monthsCtx}\n\nCURRENT MONTH DETAIL:\n${teamCtx}`;
+  const context=`=== CARIBOU RESOURCE PLANNER — ALL MONTHS (Apr 2026–Mar 2027) ===\nTargets: L5=80%, L4=80%, L3=90%, L2=95%. 19d/month base. BD not billable. Currently viewing: ${MONTHS[curMonth]} ${curYear}.\n\nFULL TEAM AVAILABILITY BY MONTH:\n${monthsCtx}\n\nCURRENT MONTH DETAIL (${MONTHS[curMonth]} ${curYear}):\n${teamCtx}`;
   const typingId='t-'+Date.now();const td=document.createElement('div');td.id=typingId;
   td.style.cssText='padding:8px 11px;border-radius:3px 10px 10px 10px;font-size:12px;background:var(--chalk);color:var(--text-3);align-self:flex-start;';td.textContent='Thinking...';
   const msgsEl=document.getElementById('ai-msgs');if(msgsEl){msgsEl.appendChild(td);msgsEl.scrollTop=msgsEl.scrollHeight;}
