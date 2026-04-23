@@ -765,7 +765,7 @@ function buildContractTimeline(){
     if(!p.contractEnd)return false;
     const[ey,em]=p.contractEnd.split('-').map(Number);
     const monthsAway=(ey-curYear)*12+(em-curMonth);
-    return monthsAway>=0&&monthsAway<lookAhead;
+    return monthsAway>=0&&monthsAway<=lookAhead;
   }).sort((a,b)=>{
     const[ay,am]=a.contractEnd.split('-').map(Number);
     const[by,bm]=b.contractEnd.split('-').map(Number);
