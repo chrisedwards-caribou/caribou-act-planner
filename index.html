@@ -650,10 +650,20 @@ function buildPersonDonut(person,als,free,av){
     const lg=angle>Math.PI?1:0;
     return`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 ${lg},1 ${x2.toFixed(1)},${y2.toFixed(1)} L${ix2.toFixed(1)},${iy2.toFixed(1)} A${ir},${ir} 0 ${lg},0 ${ix1.toFixed(1)},${iy1.toFixed(1)} Z" fill="${d.col}" stroke="white" stroke-width="1.5"/>`;
   }).join("");
-  const overBg=isOver?'style="background:#FDE8E6;border-radius:var(--r);padding:4px;"':'';
-  const svg=`<svg viewBox="0 0 180 180" style="width:160px;height:160px;flex-shrink:0;">${paths}${isOver?`<circle cx="90" cy="90" r="39" fill="#FDE8E6"/>`:""}` +
-    `<text x="90" y="83" text-anchor="middle" font-family="'Crimson Text',serif" font-size="20" font-weight="600" fill="${pctCol}">${billPct}%</text>` +
-    `<text x="90" y="98" text-anchor="middle" font-family="'Public Sans',sans-serif" font-size="9" fill="${pctCol}">${isOver?"⚠️ over":"billable"}</text></svg>`;
+  // Total % allocation (including BD)
+  const totalPct=pct(als.reduce((s,a)=>s+a.d,0),av);
+  // Draw 100% marker line inside donut
+  const marker100Angle=-Math.PI/2; // Start angle
+  const markerAngle=marker100Angle+2*Math.PI; // Full circle = 100%
+  // Line at exact 100% position (top of circle)
+  const mx1=90+40*Math.cos(-Math.PI/2),my1=90+40*Math.sin(-Math.PI/2);
+  const mx2=90+75*Math.cos(-Math.PI/2),my2=90+75*Math.sin(-Math.PI/2);
+  const marker100=isOver?`<line x1="${mx1.toFixed(1)}" y1="${my1.toFixed(1)}" x2="${mx2.toFixed(1)}" y2="${my2.toFixed(1)}" stroke="white" stroke-width="3" stroke-linecap="round"/><line x1="${mx1.toFixed(1)}" y1="${my1.toFixed(1)}" x2="${mx2.toFixed(1)}" y2="${my2.toFixed(1)}" stroke="#C0392B" stroke-width="1.5" stroke-linecap="round"/>
+    <text x="97" y="18" text-anchor="start" font-family="'Public Sans',sans-serif" font-size="7" fill="#C0392B">100%</text>`:"";
+  const svg=`<svg viewBox="0 0 180 180" style="width:160px;height:160px;flex-shrink:0;">${paths}${marker100}` +
+    `<text x="90" y="80" text-anchor="middle" font-family="'Crimson Text',serif" font-size="18" font-weight="600" fill="${pctCol}">${totalPct}%</text>` +
+    `<text x="90" y="93" text-anchor="middle" font-family="'Public Sans',sans-serif" font-size="8" fill="${pctCol}">allocated</text>` +
+    `<text x="90" y="106" text-anchor="middle" font-family="'Public Sans',sans-serif" font-size="8" fill="${isOver?"#C0392B":"#604D64"}">${billPct}% billable</text></svg>`;
   const leg=donutData.map(d=>`<div style="display:flex;align-items:center;gap:5px;font-size:11px;margin-bottom:4px;"><span style="width:8px;height:8px;border-radius:50%;background:${d.col};flex-shrink:0;display:inline-block;${d.isBD?"background-image:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(0,0,0,0.2) 2px,rgba(0,0,0,0.2) 4px);":""}"></span><span style="flex:1;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.label}${d.isBD?" 🔮":""}</span><span style="font-weight:600;color:var(--plum);">${d.val}d</span></div>`).join("");
   const bdNote=als.some(a=>a.st==="BD")?`<div style="font-size:10px;color:var(--text-3);margin-top:4px;padding:4px 6px;background:var(--chalk);border-radius:var(--rsm);">🔮 BD time is not counted as billable</div>`:"";
   return`<div style="display:flex;flex-direction:column;align-items:center;gap:10px;">${svg}<div style="width:100%;">${leg}${bdNote}</div></div>`;
@@ -791,7 +801,7 @@ function buildContractTimeline(){
 function renderOverview(){
   const wm=windowMonths();
   const{tAv,tBi,tFree,tPct}=windowMetrics(wm);
-  const winLabel=winSize>1?` (${winSize}-month aggregate)`:" — "+MONTHS[curMonth]+" "+curYear;
+  const winLabel=winSize>1?` — ${MONTHS[curMonth]} ${curYear} to ${MONTHS[wm[wm.length-1].m]} ${wm[wm.length-1].y}`:" — "+MONTHS[curMonth]+" "+curYear;
   const onLeaveNow=[];
   const onLeaveSet=new Set();
   wm.forEach(({m,y,label})=>{
@@ -811,13 +821,21 @@ function renderOverview(){
     .sort((a,b)=>(personFreeDays2[b.id]||0)-(personFreeDays2[a.id]||0));
   const freeDays=Object.values(personFreeDays2).reduce((s,v)=>s+v,0);
 
+  // Ensure global click handler for avail card
+  if(!window._availHandlerSet){
+    window._availHandlerSet=true;
+    document.addEventListener('click',function(e){
+      const card=e.target.closest('[data-action="avail"]');
+      if(card){e.stopPropagation();showAvailPopover();}
+    });
+  }
   const cards=`<div class="summary">
     <div class="scard" style="border-top:3px solid var(--clover);">
       <div class="scard-label">📊 Billable utilisation</div>
       <div class="scard-val ${tPct>=80?"cg":tPct>=60?"ca":"cr"}">${tPct}%</div>
       <div class="scard-sub">${tBi} of ${tAv} days client-paid</div>
     </div>
-    <div class="scard clickable" style="border-top:3px solid var(--naranja);cursor:pointer;" onclick="event.stopPropagation();showAvailPopover();">
+    <div class="scard clickable" data-action="avail" style="border-top:3px solid var(--naranja);cursor:pointer;">
       <div class="scard-label">💚 Available to allocate</div>
       <div class="scard-val ${freeDays>15?"cg":freeDays>0?"ca":"cr"}">${freeDays}d</div>
       <div class="scard-sub">${freeList.length} ${freeList.length===1?"person":"people"} with spare capacity${winSize>1?" over "+winSize+" months":""} · click for detail</div>
@@ -1358,7 +1376,16 @@ async function sendAI(prefill){
     const topThemes=Object.entries(p.themes||{}).filter(([k,v])=>v>=3).map(([k])=>k).join(', ');
     return`${p.name} (L${p.level}, ${p.pillar}${leaveD>0?', '+leaveD+'d leave':''}): ${bill}/${av}d billable, ${free}d free. ${als}${topSkills?'. Strong: '+topSkills:''}${topThemes?'. Themes: '+topThemes:''}.`;
   }).join('\n');
-  const context=`=== CARIBOU RESOURCE PLANNER — ${MONTHS[curMonth]} ${curYear} ===\nTargets: L5=80%, L4=80%, L3=90%, L2=95%. 19d/month base. BD time is not billable.\n\nTEAM:\n${teamCtx}`;
+  const wm_ai=windowMonths();
+  const monthsCtx=wm_ai.map(({m,y,label})=>{
+    const lines=people.map(p=>{
+      const av2=avail(p,m,y),bill2=billAlloc(p.id,m,y),tot2=totalAlloc(p.id,m,y),free2=Math.max(0,av2-tot2),lv2=leaveDays(p,m,y);
+      if(tot2===0&&lv2===0)return null;
+      return p.name+': '+bill2+'/'+av2+'d billable, '+free2+'d free'+(lv2>0?', '+lv2+'d leave':'');
+    }).filter(Boolean).join('; ');
+    return label+':\n'+lines;
+  }).join('\n\n');
+  const context=`=== CARIBOU RESOURCE PLANNER — ${wm_ai.map(w=>w.label).join(' + ')} ===\nTargets: L5=80%, L4=80%, L3=90%, L2=95%. 19d/month base. BD not billable.\n\nAVAILABILITY BY MONTH:\n${monthsCtx}\n\nCURRENT MONTH DETAIL:\n${teamCtx}`;
   const typingId='t-'+Date.now();const td=document.createElement('div');td.id=typingId;
   td.style.cssText='padding:8px 11px;border-radius:3px 10px 10px 10px;font-size:12px;background:var(--chalk);color:var(--text-3);align-self:flex-start;';td.textContent='Thinking...';
   const msgsEl=document.getElementById('ai-msgs');if(msgsEl){msgsEl.appendChild(td);msgsEl.scrollTop=msgsEl.scrollHeight;}
@@ -1372,6 +1399,7 @@ async function sendAI(prefill){
 
 function render(){
   document.getElementById("mon-label").textContent=MONTHS[curMonth]+" "+curYear;
+  console.log("render() called: curMonth="+curMonth+" curYear="+curYear+" allocs keys="+Object.keys(allocs).join(",")+" data for this month="+((allocs[curMonth+(curYear-2026)*12]||[]).length)+"entries");
   renderAlerts();
   const hints={overview:"Click cards for detail · toggle months to aggregate",people:"Click a person to expand · filter by project or BD status · click month bars to navigate",projects:"Filter by client or person · click a project to expand · click matrix cells to see who is allocated",skills:"Select themes or sub-services to filter · ⭐ interested through ⭐⭐⭐ expert"};
   document.getElementById("view-hint").innerHTML=hints[curView]||"";
